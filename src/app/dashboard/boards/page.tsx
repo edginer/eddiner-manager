@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { Board } from "@/interfaces";
 
 function Page() {
-  const { data: boards } = useSWR<Board[]>("/api/boards");
+  const { data: boards } = useSWR<Board[]>("/api/boards", { suspense: false });
 
   return (
     <div className="p-4">

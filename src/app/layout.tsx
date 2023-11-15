@@ -25,13 +25,20 @@ export default function RootLayout({
           <SWRConfig
             value={{
               fetcher,
+              suspense: true,
             }}
           >
             <SessionProvider>
               <ErrorBoundary
                 fallbackRender={(props) => <div>Error: {props.error}</div>}
               >
-                <Suspense fallback={<Spinner size="xl" />}>{children}</Suspense>
+                <Suspense
+                  fallback={
+                    <Spinner size="xl" className="fixed inset-0 m-auto" />
+                  }
+                >
+                  {children}
+                </Suspense>
               </ErrorBoundary>
             </SessionProvider>
           </SWRConfig>

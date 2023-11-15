@@ -53,8 +53,8 @@ export type Authority =
   | "audit-log-view"
   | "user-edit"
   | "user-view"
-  // global settings means system admin, so it also means that the user can do anything. (except for deleting the user itself)
-  | "global-setting";
+  | "global-setting"
+  | "arbitary-sql";
 
 export interface AdminUser {
   id: number;

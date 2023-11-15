@@ -12,9 +12,12 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <div className="flex h-screen">
       <div className="bg-gray-800 w-64">
         <div className="flex items-center justify-center mt-10">
-          <span className="text-white text-2xl mx-2 font-semibold">
+          <Link
+            href="/dashboard"
+            className="text-white text-2xl mx-2 font-semibold"
+          >
             Dashboard
-          </span>
+          </Link>
         </div>
         <nav className="mt-10">
           <Link
