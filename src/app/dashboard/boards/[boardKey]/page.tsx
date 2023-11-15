@@ -237,6 +237,7 @@ const Page = ({ params }: { params: { boardKey: string } }) => {
                   required
                   onChange={(e) =>
                     setSelectedArchiveSearchKind(
+                      // SAFETY: e.target.value is always either "id" or "title" because of the <option> elements
                       e.target.value as "id" | "title"
                     )
                   }

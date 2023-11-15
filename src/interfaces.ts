@@ -32,3 +32,32 @@ export interface ArchivedThread {
   board_id: number;
   last_modified: string;
 }
+
+export interface Board {
+  id: number;
+  name: string;
+  board_key: string;
+  local_rule: string;
+}
+
+export interface Log {
+  user_id: number;
+}
+
+export type Authority =
+  | "view-post-info"
+  | "delete-post"
+  | "revoke-authed-token"
+  | "cap-view"
+  | "cap-edit"
+  | "audit-log-view"
+  | "user-edit"
+  | "user-view"
+  // global settings means system admin, so it also means that the user can do anything. (except for deleting the user itself)
+  | "global-setting";
+
+export interface AdminUser {
+  id: number;
+  authority: Authority[];
+  userName: string;
+}

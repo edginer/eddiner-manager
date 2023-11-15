@@ -56,7 +56,7 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <span className="mx-4 font-medium">Caps</span>
           </Link>
           <Link
-            href="/dashboard/global-settings"
+            href="/dashboard/global"
             className="flex items-center py-2 px-8 text-gray-400 hover:bg-gray-700"
           >
             <svg
@@ -72,7 +72,7 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-            <span className="mx-4 font-medium">Global Settings</span>
+            <span className="mx-4 font-medium">Global</span>
           </Link>
         </nav>
       </div>

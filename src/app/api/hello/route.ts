@@ -10,6 +10,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       DB: Database;
+      ADMIN_DB: Database;
       ARCHIVE_BUCKET: R2Bucket;
     }
   }

@@ -1,9 +1,9 @@
+export const runtime = "edge";
+
 export const GET = async () => {
-  return new Response(
-    JSON.stringify({
-      name: "なんでも実況エッヂ",
-      id: 1,
-      boardKey: "liveedge",
-    })
-  );
+  const { results } = await process.env.DB.prepare(
+    "SELECT * FROM boards"
+  ).all();
+
+  return new Response(JSON.stringify(results));
 };

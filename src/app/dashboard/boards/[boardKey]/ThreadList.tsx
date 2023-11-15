@@ -25,6 +25,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
               isArchives ? "archives" : "threads"
             }/${thread.thread_number}`}
             className="text-blue-500 hover:underline cursor-pointer"
+            prefetch={false}
           >
             <span className="flex-grow">{thread.title}</span>
           </Link>
