@@ -5,7 +5,7 @@ export const runtime = "edge";
 
 const convertAdminDatFileToAdminRes = (
   boardId: number,
-  threadId: number,
+  threadId: string,
   adminDatFile: string
 ): Res[] => {
   return (
@@ -28,7 +28,7 @@ const convertAdminDatFileToAdminRes = (
           authed_token: authedToken,
           body,
           timestamp: 0,
-          thread_id: threadId.toString(),
+          thread_id: threadId,
           is_abone: 0,
           board_id: boardId,
           id: idx,
@@ -39,6 +39,27 @@ const convertAdminDatFileToAdminRes = (
       .filter((res) => res != null) as Res[]
   );
 };
+
+// const convertAdminResesToAdminDatFile = (
+//   reses: Res[],
+//   threadTitle: string
+// ): string => {
+//   return reses
+//     .map(
+//       (res, i) =>
+//         `${res.name}<>${res.mail}<>${res.date} ID:${res.author_id}<>${res.ip_addr}<>${res.authed_token}<>${res.body}`
+//     )
+//     .join("\n");
+// };
+
+// const convertAdminResesToDatFile = (reses: Res[]): string => {
+//   return reses
+//     .map(
+//       (res) =>
+//         `${res.name}<>${res.mail}<>${res.date} ID:${res.author_id}<>${res.ip_addr}<>${res.authed_token}<>${res.body}`
+//     )
+//     .join("\n");
+// };
 
 export const GET = async (
   request: Request,
@@ -91,33 +112,11 @@ export const GET = async (
       );
     }
     const adminDat = await adminDatFile.text();
-    const adminDatLines = adminDat.split("\n");
-    const archiveResponses = adminDatLines
-      .map((line, idx) => {
-        const split = line.split("<>");
-        if (split.length < 6) {
-          return null;
-        }
-
-        const [name, mail, dateAndauthorId, ipAddr, authedToken, body] = split;
-        const dateAndauthorIdSplit = dateAndauthorId.split(" ID:");
-        const res: Res = {
-          name,
-          mail,
-          date: dateAndauthorIdSplit[0],
-          author_id: dateAndauthorIdSplit[1],
-          ip_addr: ipAddr,
-          authed_token: authedToken,
-          body,
-          timestamp: 0,
-          thread_id: params.threadId,
-          is_abone: 0,
-          board_id: boardId,
-          id: idx,
-        };
-        return res;
-      })
-      .filter((res) => res !== null);
+    const archiveResponses = convertAdminDatFileToAdminRes(
+      boardId,
+      params.threadId,
+      adminDat
+    );
 
     return new Response(
       JSON.stringify({ thread, responses: archiveResponses })

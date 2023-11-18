@@ -1,3 +1,16 @@
+import { Database } from "@cloudflare/d1";
+import type { R2Bucket } from "@cloudflare/workers-types";
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      DB: Database;
+      ADMIN_DB: Database;
+      ARCHIVE_BUCKET: R2Bucket;
+    }
+  }
+}
+
 export interface Thread {
   thread_number: string;
   title: string;
@@ -23,6 +36,11 @@ export interface Res {
   timestamp: number;
   board_id: number;
   is_abone: number;
+}
+
+export interface ThreadResResp {
+  thread: Thread;
+  responses: Res[];
 }
 
 export interface ArchivedThread {

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
 
@@ -35,7 +37,7 @@ const Tab = <TKey extends string>({
   }, [selectedTabKey, onSelectedTabChange]);
 
   return (
-    <div className="px-4 pt-4">
+    <div className="sm:px-4 pt-4">
       <div className="mb-4 border-b border-gray-200 dark:border-gray-700">
         <ul
           className="flex flex-wrap -mb-px text-sm font-medium text-center"
@@ -65,7 +67,7 @@ const Tab = <TKey extends string>({
           })}
         </ul>
       </div>
-      <div className="px-4">
+      <div className="md:px-4">
         {tabItems.map((tabItem) => {
           if (tabItem.tabKey === selectedTabKey) {
             return tabItem.children;

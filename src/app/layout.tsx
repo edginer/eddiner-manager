@@ -1,5 +1,6 @@
 "use client";
 
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
@@ -8,6 +9,7 @@ import { RecoilRoot } from "recoil";
 import { Spinner } from "flowbite-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { SWRConfig } from "swr";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -41,6 +43,7 @@ export default function RootLayout({
                 </Suspense>
               </ErrorBoundary>
             </SessionProvider>
+            <ToastContainer theme="colored" />
           </SWRConfig>
         </RecoilRoot>
       </body>

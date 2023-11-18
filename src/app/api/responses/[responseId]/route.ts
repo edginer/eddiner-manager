@@ -53,11 +53,21 @@ export const PUT = async (
         UPDATE responses SET name = ?, mail = ?, date = ?, author_id = ?, body = ?, is_abone = ? WHERE id = ?
     `
     )
-      .bind(name, mail, date, author_id, body, is_abone, params.responseId)
+      .bind(
+        name,
+        mail,
+        date,
+        author_id,
+        body,
+        is_abone,
+        Number(params.responseId)
+      )
       .run();
   } catch (e) {
     return new Response(JSON.stringify({ error: JSON.stringify(e) }), {
       status: 500,
     });
   }
+
+  return new Response(JSON.stringify({ success: true }));
 };

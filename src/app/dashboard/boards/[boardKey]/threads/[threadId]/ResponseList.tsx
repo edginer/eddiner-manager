@@ -11,6 +11,7 @@ interface Props {
   onClickAbon: (responseId: number) => void;
   onClickDeleteAuthedToken: (authedToken: string) => void;
   onClickDeleteAuthedTokensAssociatedWithIp: (authedToken: string) => void;
+  onClickEditResponse: (response: Res) => void;
 }
 
 const ResponseList = ({
@@ -20,6 +21,7 @@ const ResponseList = ({
   onClickAbon,
   onClickDeleteAuthedToken,
   onClickDeleteAuthedTokensAssociatedWithIp,
+  onClickEditResponse,
 }: Props) => {
   return responses.map((response, idx) => (
     <div key={response.id} className="bg-gray-200 p-4 rounded-lg mb-4">
@@ -85,7 +87,13 @@ const ResponseList = ({
               Delete authed token associated with writing origin ip of authed
               token
             </Dropdown.Item>
-            <Dropdown.Item disabled>Edit response</Dropdown.Item>
+            <Dropdown.Item
+              onClick={() => {
+                onClickEditResponse(response);
+              }}
+            >
+              Edit response
+            </Dropdown.Item>
           </Dropdown>
         </div>
       </div>
@@ -96,6 +104,7 @@ const ResponseList = ({
       <div className="text-gray-500 text-sm mt-2">
         <p>IP: {response.ip_addr}</p>
         <p>Authed Token: {response.authed_token}</p>
+        <p>User Agent: Not implemented yet</p>
       </div>
     </div>
   ));

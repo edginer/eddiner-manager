@@ -2,49 +2,50 @@
 
 export const runtime = "edge";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Res, Thread } from "@/interfaces";
+import React, { useState, useCallback } from "react";
+import { Res, ThreadResResp } from "@/interfaces";
 import ResponseList from "./ResponseList";
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 import clsx from "clsx";
+import { Button, Modal } from "flowbite-react";
+import useSWR from "swr";
+import { toast } from "react-toastify";
 
 const Page = ({
   params,
 }: {
   params: { boardKey: string; threadId: string };
 }) => {
-  const [threadData, setThreadData] = useState<Thread | undefined>();
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [responses, setResponses] = useState<Res[]>([]);
+  const [selectedEditingRes, setSelectedEditingRes] = useState<Res | undefined>(
+    undefined
+  );
   const [selectedResponses, setSelectedResponses] = useState<Res[]>([]);
   const [showingFloatingDetail, setShowingFloatingDetail] = useState(false);
+  const { data: threadData, mutate } = useSWR<ThreadResResp>(
+    `/api/boards/${params.boardKey}/threads/${params.threadId}`,
+    { suspense: true }
+  );
 
-  const fetchThreadData = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `/api/boards/${params.boardKey}/threads/${params.threadId}`
-      );
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      throw new Error("Error fetching thread data");
-    }
-  }, [params.boardKey, params.threadId]);
-  const updateResponse = useCallback(async (res: Res) => {
-    try {
-      const req = await fetch(`/api/responses/${res.id}`, {
-        body: JSON.stringify(res),
-        method: "PUT",
-      });
-      if (req.status !== 200) {
-        throw new Error("Error updating response");
+  const updateResponse = useCallback(
+    async (res: Res) => {
+      try {
+        const req = await fetch(`/api/responses/${res.id}`, {
+          body: JSON.stringify(res),
+          method: "PUT",
+        });
+        if (req.status !== 200) {
+          throw new Error("Error updating response");
+        }
+        toast.success(`Successfully updated response`);
+        mutate();
+      } catch (error) {
+        toast.error(`Failed to update response`);
+        return error;
       }
-    } catch (error) {
-      return error;
-    }
-  }, []);
+    },
+    [mutate]
+  );
   const deleteAuthedCookie = useCallback(
     async (token: string, deleteAllSameOriginIp: boolean) => {
       try {
@@ -57,39 +58,99 @@ const Page = ({
         if (req.status !== 200) {
           throw new Error("Error deleting authed token");
         }
+        toast.success(`Successfully deleted authed token`);
       } catch (error) {
+        toast.error(`Failed to delete authed token`);
         return error;
       }
     },
     []
   );
 
-  useEffect(() => {
-    fetchThreadData()
-      .then((data) => {
-        setThreadData(data.thread);
-        setResponses(data.responses);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
-  }, [fetchThreadData]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
   return (
     <>
+      <Modal
+        show={selectedEditingRes != null}
+        onClose={() => setSelectedEditingRes(undefined)}
+      >
+        <Modal.Header>Edit Response</Modal.Header>
+        <Modal.Body>
+          <div className="flex flex-row">
+            <div className="flex flex-col">
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                className="border border-gray-300 rounded-md px-2 py-1"
+                value={selectedEditingRes?.name}
+                onChange={(e) => {
+                  if (selectedEditingRes) {
+                    setSelectedEditingRes({
+                      ...selectedEditingRes,
+                      name: e.target.value,
+                    });
+                  }
+                }}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="mail">Mail</label>
+              <input
+                type="text"
+                id="mail"
+                className="border border-gray-300 rounded-md px-2 py-1"
+                value={selectedEditingRes?.mail}
+                onChange={(e) => {
+                  if (selectedEditingRes) {
+                    setSelectedEditingRes({
+                      ...selectedEditingRes,
+                      mail: e.target.value,
+                    });
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="body">Body</label>
+            <textarea
+              id="body"
+              className="border border-gray-300 rounded-md px-2 py-1"
+              value={selectedEditingRes?.body}
+              onChange={(e) => {
+                if (selectedEditingRes) {
+                  setSelectedEditingRes({
+                    ...selectedEditingRes,
+                    body: e.target.value,
+                  });
+                }
+              }}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            onClick={() => {
+              setSelectedEditingRes(undefined);
+            }}
+          >
+            Close
+          </Button>
+          <Button
+            onClick={() => {
+              updateResponse(selectedEditingRes!!);
+              setSelectedEditingRes(undefined);
+            }}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <div className="p-4">
         <h1 className="text-3xl font-bold">
-          Thread: {threadData?.title} ({threadData?.thread_number})
+          Thread: {threadData?.thread?.title} (
+          {threadData?.thread?.thread_number})
         </h1>
         <Breadcrumb>
           <Link
@@ -105,12 +166,14 @@ const Page = ({
             {params.boardKey}
           </Link>
           <span className="text-gray-500" aria-current="page">
-            {threadData?.title}
+            {threadData?.thread?.title}
           </span>
         </Breadcrumb>
         <ResponseList
           onClickAbon={async (responseId) => {
-            const res = responses.find((res) => res.id === responseId);
+            const res = threadData?.responses.find(
+              (res) => res.id === responseId
+            );
             if (res) {
               res.is_abone = 1;
               await updateResponse(res);
@@ -122,7 +185,11 @@ const Page = ({
           onClickDeleteAuthedTokensAssociatedWithIp={async (token) => {
             await deleteAuthedCookie(token, true);
           }}
-          {...{ responses, selectedResponses, setSelectedResponses }}
+          onClickEditResponse={(response) => {
+            setSelectedEditingRes(response);
+          }}
+          responses={threadData?.responses!!}
+          {...{ selectedResponses, setSelectedResponses }}
         />
       </div>
       <div className="fixed bottom-8 right-8 z-10">
