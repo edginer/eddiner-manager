@@ -2,6 +2,7 @@
 
 import Tab from "@/components/Tab";
 import React from "react";
+import AuditLog from "./AuditLog";
 
 const Page = () => {
   return (
@@ -16,7 +17,7 @@ const Page = () => {
           {
             tabKey: "audit-log",
             tabLabel: "Audit Log",
-            children: <div>audit log</div>, // TODO: show audit log
+            children: <AuditLog />,
           },
         ]}
       />

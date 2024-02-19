@@ -1,6 +1,6 @@
 "use client";
 
-import { Res } from "@/interfaces";
+import { Res } from "@/gql/graphql";
 import { Dropdown } from "flowbite-react";
 import React from "react";
 
@@ -44,7 +44,7 @@ const ResponseList = ({
         <span className="mr-2">{response.name}</span>
         <span className="text-gray-500 mr-2">{response.mail}</span>
         <span className="text-gray-500 mr-2">{response.date}</span>
-        <span className="text-gray-500 flex-grow">ID:{response.author_id}</span>
+        <span className="text-gray-500 flex-grow">ID:{response.authorId}</span>
         <div>
           <Dropdown
             arrowIcon={false}
@@ -63,24 +63,24 @@ const ResponseList = ({
           >
             <Dropdown.Item
               onClick={() => {
-                onClickAbon(response.id);
+                onClickAbon(Number(response.id));
               }}
             >
               Delete Response (Abon)
             </Dropdown.Item>
             <Dropdown.Item
-              disabled={response.authed_token == null}
+              disabled={response.authedToken == null}
               onClick={() => {
-                onClickDeleteAuthedToken(response.authed_token!!);
+                onClickDeleteAuthedToken(response.authedToken!!);
               }}
             >
               Delete authed token
             </Dropdown.Item>
             <Dropdown.Item
-              disabled={response.authed_token == null}
+              disabled={response.authedToken == null}
               onClick={() => {
                 onClickDeleteAuthedTokensAssociatedWithIp(
-                  response.authed_token!!
+                  response.authedToken!!
                 );
               }}
             >
@@ -102,8 +102,8 @@ const ResponseList = ({
         dangerouslySetInnerHTML={{ __html: response.body }}
       />
       <div className="text-gray-500 text-sm mt-2">
-        <p>IP: {response.ip_addr}</p>
-        <p>Authed Token: {response.authed_token}</p>
+        <p>IP: {response.ipAddr}</p>
+        <p>Authed Token: {response.authedToken}</p>
         <p>User Agent: Not implemented yet</p>
       </div>
     </div>

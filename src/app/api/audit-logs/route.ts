@@ -1,20 +1,17 @@
 import { auth } from "@/auth";
-import {
-  BbsRepository,
-  BbsRepositoryImpl,
-} from "../_repositories/bbs_repository";
 
 export const runtime = "edge";
 
 export const GET = async () => {
-  const bbsRepo: BbsRepository = new BbsRepositoryImpl();
   const session = await auth();
   if (!session) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
     });
   }
-  const boards = await bbsRepo.getBoards();
+  const { results } = await process.env.ADMIN_DB.prepare(
+    "SELECT * FROM audit_logs"
+  ).all();
 
-  return new Response(JSON.stringify(boards));
+  return new Response(JSON.stringify(results));
 };

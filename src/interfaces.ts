@@ -5,13 +5,17 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       DB: Database;
+      DB_RESPONSES: Database;
+      DB_THREADS: Database;
+      DB_RESPONSES_2: Database;
+      DB_RESPONSES_3: Database;
       ADMIN_DB: Database;
       ARCHIVE_BUCKET: R2Bucket;
     }
   }
 }
 
-export interface Thread {
+export interface DbThread {
   thread_number: string;
   title: string;
   response_count: number;
@@ -21,9 +25,23 @@ export interface Thread {
   archived: number;
   active: number;
   authed_cookie?: string;
+  modulo: number;
 }
 
-export interface Res {
+export interface Thread {
+  threadNumber: string;
+  title: string;
+  responseCount: number;
+  lastModified: string;
+  boardId: number;
+  nonAuthThread: number;
+  archived: number;
+  active: number;
+  authedCookie?: string;
+  modulo: number;
+}
+
+export interface DbRes {
   id: number;
   name?: string;
   mail?: string;
@@ -38,12 +56,27 @@ export interface Res {
   is_abone: number;
 }
 
-export interface ThreadResResp {
-  thread: Thread;
-  responses: Res[];
+export interface Res {
+  id: number;
+  name?: string;
+  mail?: string;
+  date: string;
+  authorId?: string;
+  body: string;
+  threadId: string;
+  ipAddr: string;
+  authedToken?: string;
+  timestamp: number;
+  boardId: number;
+  isAbone: boolean;
 }
 
-export interface ArchivedThread {
+export interface ThreadResResp {
+  thread: DbThread;
+  responses: DbRes[];
+}
+
+export interface DbArchivedThread {
   thread_number: string;
   title: string;
   response_count: number;
@@ -51,31 +84,89 @@ export interface ArchivedThread {
   last_modified: string;
 }
 
-export interface Board {
+export interface ArchivedThread {
+  threadNumber: string;
+  title: string;
+  responseCount: number;
+  boardId: number;
+  lastModified: string;
+}
+
+export interface DbBoard {
   id: number;
   name: string;
   board_key: string;
   local_rule: string;
 }
 
-export interface Log {
-  user_id: number;
-}
-
-export type Authority =
-  | "view-post-info"
-  | "delete-post"
-  | "revoke-authed-token"
-  | "cap-view"
-  | "cap-edit"
-  | "audit-log-view"
-  | "user-edit"
-  | "user-view"
-  | "global-setting"
-  | "arbitary-sql";
-
-export interface AdminUser {
+export interface Board {
   id: number;
-  authority: Authority[];
-  userName: string;
+  name: string;
+  boardKey: string;
+  localRule: string;
 }
+
+export interface DbAuditLog {
+  id: number;
+  user_email: string;
+  used_permission: Permission | "login" | "logout";
+  info: string;
+  ip_addr: string;
+  timestamp: string;
+}
+
+export interface ArchiveRes {
+  name?: string;
+  mail?: string;
+  date: string;
+  authorId?: string;
+  body: string;
+  isAbone: boolean;
+}
+
+export type AllPermission = "all";
+export type MePermission = "me";
+export type Permission =
+  | `boards:${BoardsPermission | AllPermission}`
+  | `threads:${ThreadsPermission | AllPermission}`
+  | `archives:${ArchivesPermission | AllPermission}`
+  | `responses:${ResponsesPermission | AllPermission}`
+  | `authed-tokens:${AuthedTokensPermission | AllPermission}`
+  | `admin-users:${AdminUsersPermission | AllPermission}`
+  | `caps:${CapsPermission | AllPermission}`
+  | `caps:${CapsPermission}:${MePermission}`
+  | `roles:${RolesPermission | AllPermission}`
+  | `audit-logs:${AuditLogsPermission | AllPermission}`
+  | AllPermission;
+
+export type BoardsPermission = "create" | "list";
+export type ThreadsPermission =
+  | "list"
+  | "delete"
+  | "archive"
+  | "show"
+  | "fix-unarchived";
+export type ArchivesPermission = "list" | "delete" | "search";
+export type ResponsesPermission =
+  | "delete"
+  | "edit"
+  | "show"
+  | "show-identities";
+export type AuthedTokensPermission = "delete" | "delete-by-ip";
+export type AdminUsersPermission =
+  | "list"
+  | "create"
+  | "delete"
+  | "edit"
+  | "show"
+  | "edit-roles";
+export type CapsPermission =
+  | "list"
+  | "create"
+  | "delete"
+  | "edit"
+  | "show"
+  | "edit-name"
+  | "edit-password";
+export type RolesPermission = "list" | "create" | "delete" | "edit" | "show";
+export type AuditLogsPermission = "list" | "show";

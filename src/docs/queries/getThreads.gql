@@ -1,0 +1,15 @@
+query GetThreads($boardKey: String!) {
+  board(boardKey: $boardKey) {
+    id
+    threads {
+      threadNumber
+      title
+      responseCount
+      lastModified
+      archived
+      active
+      authedCookie
+      modulo
+    }
+  }
+}

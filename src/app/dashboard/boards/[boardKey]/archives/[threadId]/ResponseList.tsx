@@ -1,8 +1,8 @@
-import { Res } from "@/interfaces";
+import { DbRes } from "@/interfaces";
 import { Dropdown } from "flowbite-react";
 
 interface Props {
-  responses: Res[];
+  responses: DbRes[];
 }
 
 const ResponseList = ({ responses }: Props) => {

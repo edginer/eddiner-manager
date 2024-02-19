@@ -1,0 +1,3 @@
+mutation DeleteAuthedToken($token: String!, $usingOriginIp: Boolean!) {
+  deleteAuthedToken(token: $token, usingOriginIp: $usingOriginIp)
+}

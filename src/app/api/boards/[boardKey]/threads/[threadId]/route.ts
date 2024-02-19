@@ -1,3 +1,7 @@
+import {
+  BbsRepository,
+  BbsRepositoryImpl,
+} from "@/app/api/_repositories/bbs_repository";
 import { auth } from "@/auth";
 
 export const runtime = "edge";
@@ -6,6 +10,7 @@ export const GET = async (
   _request: Request,
   { params }: { params: { boardKey: string; threadId: string } }
 ) => {
+  const bbsRepo: BbsRepository = new BbsRepositoryImpl();
   const boardId = 1;
   const session = await auth();
   if (!session) {
@@ -14,22 +19,18 @@ export const GET = async (
     });
   }
   try {
-    const thread = await process.env.DB.prepare(
-      "SELECT * FROM threads WHERE board_id = ? AND thread_number = ?"
-    )
-      .bind(boardId, params.threadId)
-      .first();
+    const thread = await bbsRepo.getThread(boardId, params.threadId);
     if (!thread) {
       return new Response(JSON.stringify({ error: "Thread not found" }), {
         status: 404,
       });
     }
 
-    const { results: responses } = await process.env.DB.prepare(
-      "SELECT * FROM responses WHERE board_id = ? AND thread_id = ?"
-    )
-      .bind(boardId, params.threadId)
-      .all();
+    const responses = await bbsRepo.getResponses(
+      boardId,
+      params.threadId,
+      thread.modulo
+    );
 
     return new Response(JSON.stringify({ thread, responses }));
   } catch (e) {

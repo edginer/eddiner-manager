@@ -1,0 +1,73 @@
+# Permissions and roles of this applciations
+## Permissions
+- all (all means system admin)
+- boards
+  - create
+  - list (anyone can list boards without permission)
+- threads
+  - list (anyone can list threads without permission)
+  - delete
+  - archive
+  - show (anyone can show threads without permission)
+  - fix-unarchived
+- archives
+  - list
+  - delete
+  - search
+- responses (does not distinct between response of archived thread and response of active thread)
+  - delete
+  - edit
+  - show
+  - show-identities
+- authed-tokens
+  - delete
+  - delete-by-ip
+- admin-users
+  - list
+  - create
+  - delete
+  - edit (only for self)
+  - show (self profiles is always included)
+  - edit-roles
+- caps
+  - list
+  - create
+  - delete
+  - edit
+    - edit-name
+    - edit-password
+  - show
+- roles
+  - list
+  - create
+  - delete
+  - edit
+  - show
+- audit-logs
+  - list
+  - show
+
+## Default Roles
+- Admin
+  - All of permissions
+- Moderator
+  - boards
+    - list
+  - threads
+    - all
+  - archives
+    - all
+  - responses
+    - all
+  - authed-tokens
+    - all
+  - admin-users
+    - edit 
+      - this permission is automatically enabled if target resource is requested user resource
+  - caps
+    - list:me
+      - only for associated caps
+    - show:me
+      - only for associated cap
+    - edit-password:me
+      - only for associated cap

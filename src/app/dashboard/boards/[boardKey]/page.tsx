@@ -3,22 +3,53 @@
 import React, { useCallback, useMemo, useState } from "react";
 import ThreadList from "./ThreadList";
 import Link from "next/link";
-import { Board, Thread } from "@/interfaces";
+import { DbBoard, DbThread } from "@/interfaces";
 import Breadcrumb from "@/components/Breadcrumb";
 import Tab from "@/components/Tab";
 import useSWR from "swr";
 import ArchivedThreadList from "./ArchivedThreadList";
+import { useSuspenseQuery } from "@apollo/client";
+import { gql } from "@/gql";
+import { Board } from "@/gql/graphql";
 
 export const runtime = "edge";
 
+const GET_BOARDS = gql(`query GetBoards {
+  boards {
+    id
+    name
+    boardKey
+    threadCount
+  }
+}`);
+
+const GET_THREADS = gql(`query GetThreads($boardKey: String!) {
+  board(boardKey: $boardKey) {
+    id
+    threads {
+      threadNumber
+      title
+      responseCount
+      lastModified
+      archived
+      active
+      authedCookie
+      modulo
+    }
+  }
+}`);
+
 type TabKeys = "threads" | "archivedThreads" | "settings";
 
-const getBoard = (boards: Board[] | undefined, boardKey: string) => {
+const getBoard = (
+  boards: Omit<Board, "threads" | "archivedThreads">[] | undefined,
+  boardKey: string
+) => {
   if (boards == null) {
     throw new Error("Boards is undefined or null");
   }
 
-  const board = boards.find((board) => board.board_key === boardKey);
+  const board = boards.find((board) => board.boardKey === boardKey);
   if (board == null) {
     throw new Error("Specified board not found (from searching board key)");
   }
@@ -26,14 +57,19 @@ const getBoard = (boards: Board[] | undefined, boardKey: string) => {
 };
 
 const Page = ({ params }: { params: { boardKey: string } }) => {
-  const { data: boards } = useSWR<Board[]>("/api/boards");
+  const { data: boards } = useSuspenseQuery(GET_BOARDS);
+
   const currentBoard = useMemo(
-    () => getBoard(boards, params.boardKey),
+    () => getBoard(boards.boards, params.boardKey),
     [boards, params.boardKey]
   );
-  const { data: threads } = useSWR<Thread[]>(
-    `/api/boards/${currentBoard.id}/threads`
-  );
+
+  const { data: threads } = useSuspenseQuery(GET_THREADS, {
+    variables: {
+      boardKey: params.boardKey,
+    },
+  });
+
   const [selectedTabKey, setSelectedTabKey] = useState<TabKeys>("threads");
 
   const onSelectedTabChange = useCallback(
@@ -67,7 +103,12 @@ const Page = ({ params }: { params: { boardKey: string } }) => {
             children: (
               <div className="p-2">
                 <ThreadList
-                  threads={threads ?? []}
+                  threads={
+                    threads.board?.threads.map((x) => ({
+                      ...x,
+                      boardId: Number(currentBoard.id),
+                    })) ?? []
+                  }
                   board={{
                     boardKey: params.boardKey,
                     boardName: currentBoard.name,
@@ -83,7 +124,7 @@ const Page = ({ params }: { params: { boardKey: string } }) => {
             children: (
               <div className="p-2">
                 <ArchivedThreadList
-                  boardId={currentBoard.id}
+                  boardId={Number(currentBoard.id)}
                   boardKey={params.boardKey}
                   boardName={currentBoard.name}
                   active={selectedTabKey === "archivedThreads"}

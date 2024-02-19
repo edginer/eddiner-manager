@@ -1,0 +1,12 @@
+query GetArchivedThreadData($boardKey: String!, $threadId: String!) {
+  board(boardKey: $boardKey) {
+    id
+    archivedThreads(threadId: $threadId) {
+      threadNumber
+      title
+      responseCount
+      lastModified
+      boardId
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { Res } from "@/interfaces";
+import { DbRes } from "@/interfaces";
 
 export const runtime = "edge";
 
@@ -7,7 +7,7 @@ const convertAdminDatFileToAdminRes = (
   boardId: number,
   threadId: string,
   adminDatFile: string
-): Res[] => {
+): DbRes[] => {
   return (
     adminDatFile
       .split("\n")
@@ -19,7 +19,7 @@ const convertAdminDatFileToAdminRes = (
 
         const [name, mail, dateAndauthorId, ipAddr, authedToken, body] = split;
         const dateAndauthorIdSplit = dateAndauthorId.split(" ID:");
-        const res: Res = {
+        const res: DbRes = {
           name,
           mail,
           date: dateAndauthorIdSplit[0],
@@ -36,7 +36,7 @@ const convertAdminDatFileToAdminRes = (
         return res;
       })
       // SAFETY: null is filtered out
-      .filter((res) => res != null) as Res[]
+      .filter((res) => res != null) as DbRes[]
   );
 };
 

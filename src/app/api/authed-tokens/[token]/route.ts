@@ -1,4 +1,8 @@
 import { auth } from "@/auth";
+import {
+  BbsRepository,
+  BbsRepositoryImpl,
+} from "../../_repositories/bbs_repository";
 
 export const runtime = "edge";
 
@@ -7,6 +11,7 @@ export const DELETE = async (
   request: Request,
   { params }: { params: { token: string } }
 ) => {
+  const bbsRepo: BbsRepository = new BbsRepositoryImpl();
   const session = await auth();
   if (!session) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -18,20 +23,9 @@ export const DELETE = async (
   const useAssociatedOriginIp = url.searchParams.get("useOriginIp") === "true";
 
   try {
-    if (useAssociatedOriginIp) {
-      await process.env.DB.prepare(
-        `DELETE FROM authed_cookies WHERE origin_ip 
-        IN (SELECT origin_ip FROM authed_cookies WHERE cookie = ?)`
-      )
-        .bind(params.token)
-        .run();
-    } else {
-      await process.env.DB.prepare(
-        "DELETE FROM authed_cookies WHERE cookie = ?"
-      )
-        .bind(params.token)
-        .run();
-    }
+    await bbsRepo.deleteAuthedToken(params.token, useAssociatedOriginIp);
+
+    return new Response(JSON.stringify({ success: true }));
   } catch (e) {
     return new Response(JSON.stringify({ error: JSON.stringify(e) }), {
       status: 500,

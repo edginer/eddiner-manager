@@ -3,14 +3,63 @@
 export const runtime = "edge";
 
 import React, { useState, useCallback } from "react";
-import { Res, ThreadResResp } from "@/interfaces";
 import ResponseList from "./ResponseList";
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 import clsx from "clsx";
 import { Button, Modal } from "flowbite-react";
-import useSWR from "swr";
 import { toast } from "react-toastify";
+import { Res } from "@/gql/graphql";
+import { gql } from "@/gql/gql";
+import { useMutation, useSuspenseQuery } from "@apollo/client";
+
+const GET_THREAD_DATA =
+  gql(`query GetThreadData($boardKey: String!, $threadId: String!) {
+  board(boardKey: $boardKey) {
+    id
+    threads(threadNumber: $threadId) {
+      threadNumber
+      title
+      responseCount
+      lastModified
+      archived
+      active
+      authedCookie
+      modulo
+      responses {
+        id
+        name
+        mail
+        date
+        authorId
+        body
+        threadId
+        ipAddr
+        authedToken
+        timestamp
+        isAbone
+        boardId
+      }
+    }
+  }
+}`);
+
+const DELETE_AUTHED_TOKEN =
+  gql(`mutation DeleteAuthedToken($token: String!, $usingOriginIp: Boolean!) {
+  deleteAuthedToken(token: $token, usingOriginIp: $usingOriginIp)
+}`);
+
+const UPDATE_RESPONSE = gql(`mutation UpdateResponse($res: ResInput!) {
+  updateResponse(res: $res) {
+    id
+    name
+    mail
+    body
+    threadId
+    boardId
+    isAbone
+  }
+}`);
 
 const Page = ({
   params,
@@ -22,50 +71,53 @@ const Page = ({
   );
   const [selectedResponses, setSelectedResponses] = useState<Res[]>([]);
   const [showingFloatingDetail, setShowingFloatingDetail] = useState(false);
-  const { data: threadData, mutate } = useSWR<ThreadResResp>(
-    `/api/boards/${params.boardKey}/threads/${params.threadId}`,
-    { suspense: true }
-  );
+
+  const { data: threadDataGql, refetch } = useSuspenseQuery(GET_THREAD_DATA, {
+    variables: {
+      boardKey: params.boardKey,
+      threadId: params.threadId,
+    },
+  });
+  const [updateRespMut] = useMutation(UPDATE_RESPONSE);
+  const [deleteAuthedCookieMut] = useMutation(DELETE_AUTHED_TOKEN);
 
   const updateResponse = useCallback(
     async (res: Res) => {
       try {
-        const req = await fetch(`/api/responses/${res.id}`, {
-          body: JSON.stringify(res),
-          method: "PUT",
+        const _result = await updateRespMut({
+          variables: {
+            res,
+          },
         });
-        if (req.status !== 200) {
-          throw new Error("Error updating response");
-        }
         toast.success(`Successfully updated response`);
-        mutate();
+        await refetch();
       } catch (error) {
         toast.error(`Failed to update response`);
         return error;
       }
     },
-    [mutate]
+    [refetch, updateRespMut]
   );
   const deleteAuthedCookie = useCallback(
     async (token: string, deleteAllSameOriginIp: boolean) => {
       try {
-        const req = await fetch(
-          `/api/authed-tokens/${token}?useOriginIp=${deleteAllSameOriginIp}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (req.status !== 200) {
-          throw new Error("Error deleting authed token");
-        }
+        await deleteAuthedCookieMut({
+          variables: {
+            token,
+            usingOriginIp: deleteAllSameOriginIp,
+          },
+        });
+
         toast.success(`Successfully deleted authed token`);
       } catch (error) {
         toast.error(`Failed to delete authed token`);
         return error;
       }
     },
-    []
+    [deleteAuthedCookieMut]
   );
+
+  console.log("rendering: initializations done");
 
   return (
     <>
@@ -82,7 +134,7 @@ const Page = ({
                 type="text"
                 id="name"
                 className="border border-gray-300 rounded-md px-2 py-1"
-                value={selectedEditingRes?.name}
+                value={selectedEditingRes?.name ?? ""}
                 onChange={(e) => {
                   if (selectedEditingRes) {
                     setSelectedEditingRes({
@@ -99,7 +151,7 @@ const Page = ({
                 type="text"
                 id="mail"
                 className="border border-gray-300 rounded-md px-2 py-1"
-                value={selectedEditingRes?.mail}
+                value={selectedEditingRes?.mail ?? ""}
                 onChange={(e) => {
                   if (selectedEditingRes) {
                     setSelectedEditingRes({
@@ -149,8 +201,8 @@ const Page = ({
       </Modal>
       <div className="p-4">
         <h1 className="text-3xl font-bold">
-          Thread: {threadData?.thread?.title} (
-          {threadData?.thread?.thread_number})
+          Thread: {threadDataGql?.board?.threads[0].title} (
+          {threadDataGql?.board?.threads[0].threadNumber})
         </h1>
         <Breadcrumb>
           <Link
@@ -166,16 +218,17 @@ const Page = ({
             {params.boardKey}
           </Link>
           <span className="text-gray-500" aria-current="page">
-            {threadData?.thread?.title}
+            {threadDataGql?.board?.threads[0].title}
           </span>
         </Breadcrumb>
         <ResponseList
           onClickAbon={async (responseId) => {
-            const res = threadData?.responses.find(
-              (res) => res.id === responseId
+            const res = threadDataGql?.board?.threads[0].responses.find(
+              (res) => Number(res.id) === responseId
             );
+            toast.error("Not implemented");
             if (res) {
-              res.is_abone = 1;
+              res.isAbone = true;
               await updateResponse(res);
             }
           }}
@@ -186,9 +239,15 @@ const Page = ({
             await deleteAuthedCookie(token, true);
           }}
           onClickEditResponse={(response) => {
+            // TODO: Implement
+            // toast.error("Not implemented");
             setSelectedEditingRes(response);
           }}
-          responses={threadData?.responses!!}
+          responses={
+            threadDataGql?.board?.threads[0].responses.filter(
+              (r) => r != null
+            ) ?? []
+          }
           {...{ selectedResponses, setSelectedResponses }}
         />
       </div>

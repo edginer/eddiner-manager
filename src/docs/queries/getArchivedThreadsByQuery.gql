@@ -1,0 +1,16 @@
+query GetArchivedThreadsByQuery(
+  $boardKey: String!
+  $page: Int!
+  $query: String!
+) {
+  board(boardKey: $boardKey) {
+    id
+    archivedThreads(page: $page, query: $query) {
+      threadNumber
+      title
+      responseCount
+      lastModified
+      boardId
+    }
+  }
+}

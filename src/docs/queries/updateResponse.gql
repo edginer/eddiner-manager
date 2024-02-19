@@ -1,0 +1,11 @@
+mutation UpdateResponse($res: ResInput!) {
+  updateResponse(res: $res) {
+    id
+    name
+    mail
+    body
+    threadId
+    boardId
+    isAbone
+  }
+}

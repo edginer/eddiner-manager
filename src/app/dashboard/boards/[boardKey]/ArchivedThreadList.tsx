@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import ThreadList from "./ThreadList";
 import { Label, Pagination, Select, TextInput } from "flowbite-react";
 import { twMerge } from "tailwind-merge";
-import { ArchivedThread } from "@/interfaces";
+import { DbArchivedThread } from "@/interfaces";
 import useSWR from "swr";
 import { AiOutlineSearch } from "react-icons/ai";
 
@@ -29,7 +29,7 @@ const ArchivedThreadList = ({
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: archivedThreads, mutate: mutateArchivedThreads } = useSWR<
-    ArchivedThread[]
+    DbArchivedThread[]
   >(active ? `/api/boards/${boardId}/archives?page=${currentPage}` : null);
 
   const searchArchivedThreads = useCallback(
@@ -39,13 +39,13 @@ const ArchivedThreadList = ({
           const res = await fetch(
             `/api/boards/${boardId}/archives/${archiveSearchText}?head=true`
           );
-          const data: ArchivedThread = await res.json();
+          const data: DbArchivedThread = await res.json();
           return [data];
         } else {
           const res = await fetch(
             `/api/boards/${boardId}/archives?query=${archiveSearchText}&page=${page}`
           );
-          const data: ArchivedThread[] = await res.json();
+          const data: DbArchivedThread[] = await res.json();
           return data;
         }
       } catch (error) {
@@ -155,7 +155,15 @@ const ArchivedThreadList = ({
         </div>
       </div>
       <ThreadList
-        threads={archivedThreads ?? []}
+        threads={
+          archivedThreads?.map((x) => ({
+            ...x,
+            boardId: x.board_id,
+            lastModified: x.last_modified,
+            responseCount: x.response_count,
+            threadNumber: x.thread_number,
+          })) ?? []
+        }
         board={{
           boardKey,
           boardName,

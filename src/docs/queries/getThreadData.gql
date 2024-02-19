@@ -1,0 +1,29 @@
+query GetThreadData($boardKey: String!, $threadId: String!) {
+  board(boardKey: $boardKey) {
+    id
+    threads(threadNumber: $threadId) {
+      threadNumber
+      title
+      responseCount
+      lastModified
+      archived
+      active
+      authedCookie
+      modulo
+      responses {
+        id
+        name
+        mail
+        date
+        authorId
+        body
+        threadId
+        ipAddr
+        authedToken
+        timestamp
+        isAbone
+        boardId
+      }
+    }
+  }
+}

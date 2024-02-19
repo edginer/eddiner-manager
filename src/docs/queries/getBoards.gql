@@ -1,0 +1,8 @@
+query GetBoards {
+  boards {
+    id
+    name
+    boardKey
+    threadCount
+  }
+}
