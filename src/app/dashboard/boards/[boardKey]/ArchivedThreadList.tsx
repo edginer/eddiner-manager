@@ -2,75 +2,55 @@ import React, { useCallback, useState } from "react";
 import ThreadList from "./ThreadList";
 import { Label, Pagination, Select, TextInput } from "flowbite-react";
 import { twMerge } from "tailwind-merge";
-import { DbArchivedThread } from "@/interfaces";
-import useSWR from "swr";
 import { AiOutlineSearch } from "react-icons/ai";
+import { useSuspenseQuery } from "@apollo/client";
+import { gql } from "@/gql/gql";
+
+const GET_ARCHIVED_THREADS_BY_QUERY =
+  gql(`query GetArchivedThreadsByQuery($boardKey: String!, $page: Int!, $query: String!) {
+  board(boardKey: $boardKey) {
+    id
+    archivedThreads(page: $page, query: $query) {
+      threadNumber
+      title
+      responseCount
+      lastModified
+      boardId
+    }
+  }
+}`);
 
 interface Props {
-  boardId: number;
   boardKey: string;
   boardName: string;
-  active: boolean;
 }
 
-const ArchivedThreadList = ({
-  boardId,
-  boardKey,
-  boardName,
-  active,
-}: Props) => {
+const ArchivedThreadList = ({ boardKey, boardName }: Props) => {
   const [selectedArchiveSearchKind, setSelectedArchiveSearchKind] = useState<
     "id" | "title"
   >("id");
   const [archiveSearchText, setArchiveSearchText] = useState<string>("");
+  const [searchText, setSearchText] = useState("");
   const [archiveDatSearchValidationError, setArchiveDatSearchValidationError] =
     useState(false);
-  const [searched, setSearched] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: archivedThreads, mutate: mutateArchivedThreads } = useSWR<
-    DbArchivedThread[]
-  >(active ? `/api/boards/${boardId}/archives?page=${currentPage}` : null);
-
-  const searchArchivedThreads = useCallback(
-    async (page: number = 0) => {
-      try {
-        if (selectedArchiveSearchKind === "id") {
-          const res = await fetch(
-            `/api/boards/${boardId}/archives/${archiveSearchText}?head=true`
-          );
-          const data: DbArchivedThread = await res.json();
-          return [data];
-        } else {
-          const res = await fetch(
-            `/api/boards/${boardId}/archives?query=${archiveSearchText}&page=${page}`
-          );
-          const data: DbArchivedThread[] = await res.json();
-          return data;
-        }
-      } catch (error) {
-        throw new Error("Error fetching thread data");
-      } finally {
-        setSearched(true);
-      }
-    },
-    [selectedArchiveSearchKind, archiveSearchText, boardId]
+  const { data: archivedThreadsGql } = useSuspenseQuery(
+    GET_ARCHIVED_THREADS_BY_QUERY,
+    {
+      variables: {
+        boardKey,
+        page: currentPage - 1,
+        query: searchText,
+      },
+    }
   );
 
   const onPageChange = useCallback(
     (page: number) => {
       setCurrentPage(page);
-      if (searched) {
-        searchArchivedThreads(page - 1)
-          .then((data) => {
-            mutateArchivedThreads(data, false);
-          })
-          .catch((error) => {
-            throw new Error(error.message);
-          });
-      }
     },
-    [searchArchivedThreads, searched, mutateArchivedThreads]
+    [setCurrentPage]
   );
 
   return (
@@ -134,13 +114,13 @@ const ArchivedThreadList = ({
             archiveDatSearchValidationError || setArchiveSearchText.length === 0
           }
           onClick={() => {
-            searchArchivedThreads()
-              .then((data) => {
-                mutateArchivedThreads(data, false);
-              })
-              .catch((error) => {
-                throw new Error(error.message);
-              });
+            if (
+              archiveDatSearchValidationError ||
+              setArchiveSearchText.length === 0
+            ) {
+              return;
+            }
+            setSearchText(archiveSearchText);
           }}
         >
           <AiOutlineSearch />
@@ -156,12 +136,9 @@ const ArchivedThreadList = ({
       </div>
       <ThreadList
         threads={
-          archivedThreads?.map((x) => ({
+          archivedThreadsGql?.board?.archivedThreads?.map((x) => ({
             ...x,
-            boardId: x.board_id,
-            lastModified: x.last_modified,
-            responseCount: x.response_count,
-            threadNumber: x.thread_number,
+            boardId: x.boardId,
           })) ?? []
         }
         board={{

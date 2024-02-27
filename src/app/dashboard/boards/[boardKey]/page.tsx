@@ -122,10 +122,8 @@ const Page = ({ params }: { params: { boardKey: string } }) => {
             children: (
               <div className="p-2">
                 <ArchivedThreadList
-                  boardId={Number(currentBoard.id)}
                   boardKey={params.boardKey}
                   boardName={currentBoard.name}
-                  active={selectedTabKey === "archivedThreads"}
                 />
               </div>
             ),

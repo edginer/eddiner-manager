@@ -1,15 +1,10 @@
-import { ArchivedThread, Res } from "@/gql/graphql";
-import { ArchivedRes, DbRes } from "@/interfaces";
+import { Res } from "@/gql/graphql";
+import { ArchivedRes } from "@/interfaces";
 import { Database } from "@cloudflare/d1";
 import { R2Bucket } from "@cloudflare/workers-types";
 import { BbsRepository } from "./bbs_repository";
 
 export interface ArchivedThreadRepository {
-  // headArchivedThread(
-  //   boardId: number,
-  //   threadId: string
-  // ): Promise<ArchivedThread | undefined>;
-
   getArchivedThreadData(
     boardId: number,
     threadId: string

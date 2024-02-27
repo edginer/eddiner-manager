@@ -369,9 +369,6 @@ export class BbsRepositoryImpl implements BbsRepository {
     const parsedPage = page ?? NaN;
 
     if (query) {
-      console.log(query);
-      console.log(boardId);
-      console.log(isNaN(parsedPage) ? 0 : parsedPage * 25);
       const { results } = await this.infosDb
         .prepare(
           "SELECT * FROM archives WHERE board_id = ? AND title LIKE ? LIMIT 25 OFFSET ?"
