@@ -16,6 +16,7 @@ export const authenticate = async (req: Request): Promise<Authentication> => {
     });
   }
   const session = await auth();
+  console.log(session);
   if (!session || !session.user || !session.user.email) {
     throw new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,

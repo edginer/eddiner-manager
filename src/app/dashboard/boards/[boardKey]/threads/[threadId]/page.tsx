@@ -117,8 +117,6 @@ const Page = ({
     [deleteAuthedCookieMut]
   );
 
-  console.log("rendering: initializations done");
-
   return (
     <>
       <Modal
