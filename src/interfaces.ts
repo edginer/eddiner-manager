@@ -115,7 +115,7 @@ export interface DbAuditLog {
   timestamp: string;
 }
 
-export interface ArchiveRes {
+export interface ArchivedRes {
   name?: string;
   mail?: string;
   date: string;

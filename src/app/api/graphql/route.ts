@@ -7,6 +7,9 @@ import {
   BbsRepositoryImpl,
 } from "../_repositories/bbs_repository";
 import { schema } from "@/schema";
+import { ArchivedThreadRepositoryImpl } from "../_repositories/archived_thread_repository";
+import { ArchivedRes, Res } from "@/interfaces";
+import { ArchivedRes as ArchivedResGql } from "@/gql/graphql";
 
 const generator = (auth: Authentication) => {
   const bbsRepo: BbsRepository = new BbsRepositoryImpl();
@@ -34,11 +37,18 @@ const generator = (auth: Authentication) => {
               return await bbsRepo.getThreads2(parent.id);
             }
           },
-          archivedThreads: async (parent, args) =>
-            await bbsRepo.getArchivedThreads2(parent.id, {
-              page: args.page,
-              query: args.query,
-            }),
+          archivedThreads: async (parent, args) => {
+            if (args.threadId) {
+              return [
+                await bbsRepo.headArchivedThread(parent.id, args.threadId),
+              ];
+            } else {
+              return await bbsRepo.getArchivedThreads2(parent.id, {
+                page: args.page,
+                query: args.query,
+              });
+            }
+          },
         },
         Thread: {
           responses: async (parent, args) => {
@@ -52,7 +62,37 @@ const generator = (auth: Authentication) => {
             );
           },
         },
-        ArchivedThread: {},
+        ArchivedThread: {
+          responses: async (parent) => {
+            const archivedThreadRepo = new ArchivedThreadRepositoryImpl(
+              bbsRepo
+            );
+            const promises = [
+              archivedThreadRepo.getArchivedThreadData(
+                parent.boardId,
+                parent.threadNumber
+              ),
+              archivedThreadRepo.getAdminArchivedThreadData(
+                parent.boardId,
+                parent.threadNumber
+              ),
+            ];
+            const [archivedRes, adminArchivedRes] = await Promise.all(promises);
+            const result = [];
+
+            for (let i = 0; i < adminArchivedRes.length; i++) {
+              const aRes = archivedRes[i] as ArchivedRes;
+              const aaRes = adminArchivedRes[i] as Res;
+              result.push({
+                ...aRes,
+                ipAddr: aaRes.ipAddr,
+                authedToken: aaRes.authedToken,
+              });
+            }
+
+            return result satisfies ArchivedResGql[];
+          },
+        },
         Mutation: {
           updateResponse: async (_, args) => {
             const { res } = args;

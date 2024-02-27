@@ -7,6 +7,16 @@ query GetArchivedThreadData($boardKey: String!, $threadId: String!) {
       responseCount
       lastModified
       boardId
+      responses {
+        name
+        mail
+        date
+        authorId
+        body
+        isAbone
+        ipAddr
+        authedToken
+      }
     }
   }
 }

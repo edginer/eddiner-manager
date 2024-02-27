@@ -45,7 +45,10 @@ export interface BbsRepository {
       "boardId" | "threadId" | "date" | "ipAddr" | "authedToken" | "timestamp"
     >
   ): Promise<void>;
-  headArchivedThread(boardId: number, threadId: string): Promise<boolean>;
+  headArchivedThread(
+    boardId: number,
+    threadId: string
+  ): Promise<ArchivedThread>;
   deleteAuthedToken(
     token: string,
     appliedToAssociatedOriginIp: boolean
@@ -406,15 +409,21 @@ export class BbsRepositoryImpl implements BbsRepository {
   async headArchivedThread(
     boardId: number,
     threadId: string
-  ): Promise<boolean> {
-    const thread = await this.infosDb
+  ): Promise<ArchivedThread> {
+    const thread = (await this.infosDb
       .prepare(
         "SELECT * FROM archives WHERE board_id = ? AND thread_number = ?"
       )
       .bind(boardId, threadId)
-      .first();
+      .first()) as unknown as DbArchivedThread;
 
-    return !!thread;
+    return {
+      threadNumber: thread.thread_number,
+      title: thread.title,
+      responseCount: thread.response_count,
+      lastModified: thread.last_modified,
+      boardId: thread.board_id,
+    };
   }
 
   async deleteAuthedToken(

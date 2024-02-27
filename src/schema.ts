@@ -15,7 +15,6 @@ export const schema = /* GraphQL */ `
     archivedThreads(
       page: Int
       query: String
-      boardId: Int
       threadId: String
     ): [ArchivedThread!]!
   }
@@ -55,6 +54,18 @@ export const schema = /* GraphQL */ `
     responseCount: Int!
     boardId: Int!
     lastModified: String!
+    responses: [ArchivedRes!]!
+  }
+
+  type ArchivedRes {
+    name: String
+    mail: String
+    date: String!
+    authorId: String
+    body: String!
+    ipAddr: String!
+    authedToken: String
+    isAbone: Boolean!
   }
 
   type Mutation {

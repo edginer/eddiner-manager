@@ -29,11 +29,24 @@ export type Scalars = {
   Float: { input: number; output: number };
 };
 
+export type ArchivedRes = {
+  __typename?: "ArchivedRes";
+  authedToken?: Maybe<Scalars["String"]["output"]>;
+  authorId?: Maybe<Scalars["String"]["output"]>;
+  body: Scalars["String"]["output"];
+  date: Scalars["String"]["output"];
+  ipAddr: Scalars["String"]["output"];
+  isAbone: Scalars["Boolean"]["output"];
+  mail?: Maybe<Scalars["String"]["output"]>;
+  name?: Maybe<Scalars["String"]["output"]>;
+};
+
 export type ArchivedThread = {
   __typename?: "ArchivedThread";
   boardId: Scalars["Int"]["output"];
   lastModified: Scalars["String"]["output"];
   responseCount: Scalars["Int"]["output"];
+  responses: Array<ArchivedRes>;
   threadNumber: Scalars["String"]["output"];
   title: Scalars["String"]["output"];
 };
@@ -50,7 +63,6 @@ export type Board = {
 };
 
 export type BoardArchivedThreadsArgs = {
-  boardId?: InputMaybe<Scalars["Int"]["input"]>;
   page?: InputMaybe<Scalars["Int"]["input"]>;
   query?: InputMaybe<Scalars["String"]["input"]>;
   threadId?: InputMaybe<Scalars["String"]["input"]>;
@@ -158,6 +170,17 @@ export type GetArchivedThreadDataQuery = {
       responseCount: number;
       lastModified: string;
       boardId: number;
+      responses: Array<{
+        __typename?: "ArchivedRes";
+        name?: string | null;
+        mail?: string | null;
+        date: string;
+        authorId?: string | null;
+        body: string;
+        isAbone: boolean;
+        ipAddr: string;
+        authedToken?: string | null;
+      }>;
     }>;
   } | null;
 };
@@ -457,6 +480,47 @@ export const GetArchivedThreadDataDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "boardId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "responses" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "name" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "mail" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "date" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "authorId" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "body" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "isAbone" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "ipAddr" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "authedToken" },
+                            },
+                          ],
+                        },
                       },
                     ],
                   },

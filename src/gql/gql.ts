@@ -15,7 +15,7 @@ import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/
 const documents = {
   "mutation DeleteAuthedToken($token: String!, $usingOriginIp: Boolean!) {\n  deleteAuthedToken(token: $token, usingOriginIp: $usingOriginIp)\n}":
     types.DeleteAuthedTokenDocument,
-  "query GetArchivedThreadData($boardKey: String!, $threadId: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(threadId: $threadId) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n    }\n  }\n}":
+  "query GetArchivedThreadData($boardKey: String!, $threadId: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(threadId: $threadId) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n      responses {\n        name\n        mail\n        date\n        authorId\n        body\n        isAbone\n        ipAddr\n        authedToken\n      }\n    }\n  }\n}":
     types.GetArchivedThreadDataDocument,
   "query GetArchivedThreads($boardKey: String!, $page: Int!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(page: $page) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n    }\n  }\n}":
     types.GetArchivedThreadsDocument,
@@ -55,8 +55,8 @@ export function gql(
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(
-  source: "query GetArchivedThreadData($boardKey: String!, $threadId: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(threadId: $threadId) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n    }\n  }\n}",
-): (typeof documents)["query GetArchivedThreadData($boardKey: String!, $threadId: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(threadId: $threadId) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n    }\n  }\n}"];
+  source: "query GetArchivedThreadData($boardKey: String!, $threadId: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(threadId: $threadId) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n      responses {\n        name\n        mail\n        date\n        authorId\n        body\n        isAbone\n        ipAddr\n        authedToken\n      }\n    }\n  }\n}",
+): (typeof documents)["query GetArchivedThreadData($boardKey: String!, $threadId: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(threadId: $threadId) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n      responses {\n        name\n        mail\n        date\n        authorId\n        body\n        isAbone\n        ipAddr\n        authedToken\n      }\n    }\n  }\n}"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

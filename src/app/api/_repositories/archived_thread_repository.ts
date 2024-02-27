@@ -1,23 +1,21 @@
 import { ArchivedThread, Res } from "@/gql/graphql";
-import { ArchiveRes as ArchivedRes, DbRes } from "@/interfaces";
+import { ArchivedRes, DbRes } from "@/interfaces";
 import { Database } from "@cloudflare/d1";
 import { R2Bucket } from "@cloudflare/workers-types";
+import { BbsRepository } from "./bbs_repository";
 
 export interface ArchivedThreadRepository {
-  headArchivedThread(
-    boardId: number,
-    threadId: string
-  ): Promise<ArchivedThread | undefined>;
+  // headArchivedThread(
+  //   boardId: number,
+  //   threadId: string
+  // ): Promise<ArchivedThread | undefined>;
 
-  getArchivedThread(
+  getArchivedThreadData(
     boardId: number,
     threadId: string
-  ): Promise<[ArchivedThread, ArchivedRes[]]>;
+  ): Promise<ArchivedRes[]>;
 
-  getAdminArchivedThread(
-    boardId: number,
-    threadId: string
-  ): Promise<[ArchivedThread, Res[]]>;
+  getAdminArchivedThreadData(boardId: number, threadId: string): Promise<Res[]>;
 }
 
 export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
@@ -25,8 +23,11 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
   threadsDb: Database;
   responsesDbs: Database[];
   datBucket: R2Bucket;
+  bbsRepo: BbsRepository;
 
-  constructor() {
+  boardIdToBoardKey: Map<number, string> = new Map();
+
+  constructor(bbsRepo: BbsRepository) {
     this.infosDb = process.env.DB;
     this.threadsDb = process.env.DB_THREADS;
     this.responsesDbs = [
@@ -35,65 +36,47 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
       process.env.DB_RESPONSES_3,
     ];
     this.datBucket = process.env.ARCHIVE_BUCKET;
+    this.bbsRepo = bbsRepo;
   }
 
-  async headArchivedThread(
+  async getArchivedThreadData(
     boardId: number,
     threadId: string
-  ): Promise<ArchivedThread | undefined> {
-    const thread = await this.infosDb
-      .prepare(
-        "SELECT * FROM archives WHERE board_id = ? AND thread_number = ?"
-      )
-      .bind(boardId, threadId)
-      .first();
-
-    if (thread == null) {
-      return undefined;
-    }
-    return thread as ArchivedThread;
-  }
-
-  async getArchivedThread(
-    boardId: number,
-    threadId: string
-  ): Promise<[ArchivedThread, ArchivedRes[]]> {
-    const thread = await this.headArchivedThread(boardId, threadId);
+  ): Promise<ArchivedRes[]> {
+    const thread = await this.bbsRepo.headArchivedThread(boardId, threadId);
+    const boardKey = await this.getBoardKey(boardId);
 
     if (thread == null) {
       throw new Error("Thread not found");
     }
 
-    const datFile = await this.datBucket.get(
-      `${thread.boardId}/dat/${threadId}.dat`
-    );
+    const datFile = await this.datBucket.get(`${boardKey}/dat/${threadId}.dat`);
     if (datFile == null) {
-      throw new Error(
-        `Dat file is not found: ${thread.boardId}/dat/${threadId}.dat`
-      );
+      throw new Error(`Dat file is not found: ${boardKey}/dat/${threadId}.dat`);
     }
     const datText = await datFile.text();
     const reses = convertDatFileToRes(datText);
 
-    return [thread, reses];
+    return reses;
   }
 
-  async getAdminArchivedThread(
+  async getAdminArchivedThreadData(
     boardId: number,
     threadId: string
-  ): Promise<[ArchivedThread, Res[]]> {
-    const thread = await this.headArchivedThread(boardId, threadId);
+  ): Promise<Res[]> {
+    const thread = await this.bbsRepo.headArchivedThread(boardId, threadId);
+    const boardKey = await this.getBoardKey(boardId);
 
     if (thread == null) {
       throw new Error("Thread not found");
     }
 
     const datFile = await this.datBucket.get(
-      `${thread.boardId}/admin/${threadId}.dat`
+      `${boardKey}/admin/${threadId}.dat`
     );
     if (datFile == null) {
       throw new Error(
-        `Dat file is not found: ${thread.boardId}/admin/${threadId}.dat`
+        `Dat file is not found: ${boardKey}/admin/${threadId}.dat`
       );
     }
     const datText = await datFile.text();
@@ -103,7 +86,27 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
       datText
     );
 
-    return [thread, reses];
+    return reses;
+  }
+
+  private async getBoardKey(
+    boardId: number,
+    cache: boolean = true
+  ): Promise<string> {
+    if (cache) {
+      const boardKey = this.boardIdToBoardKey.get(boardId);
+      if (boardKey != null) {
+        return boardKey;
+      }
+    }
+
+    const boards = await this.bbsRepo.getBoards2();
+    const board = boards.find((b) => b.id === boardId);
+    if (board == null) {
+      throw new Error("Board not found");
+    }
+    this.boardIdToBoardKey.set(boardId, board.boardKey);
+    return board.boardKey;
   }
 }
 
