@@ -1,13 +1,17 @@
+import { ArchivedRes } from "@/gql/graphql";
 import { DbRes } from "@/interfaces";
 import { Dropdown } from "flowbite-react";
 
 interface Props {
-  responses: DbRes[];
+  responses: ArchivedRes[];
 }
 
 const ResponseList = ({ responses }: Props) => {
   return responses.map((response, idx) => (
-    <div key={response.id} className="bg-gray-200 p-4 rounded-lg mb-4">
+    <div
+      key={`${response.date}-${response.ipAddr}`}
+      className="bg-gray-200 p-4 rounded-lg mb-4"
+    >
       <div className="flex items-center mb-2 border-b">
         {/* <input
             type="checkbox"
@@ -27,7 +31,7 @@ const ResponseList = ({ responses }: Props) => {
         <span className="mr-2">{response.name}</span>
         <span className="text-gray-500 mr-2">{response.mail}</span>
         <span className="text-gray-500 mr-2">{response.date}</span>
-        <span className="text-gray-500 flex-grow">ID:{response.author_id}</span>
+        <span className="text-gray-500 flex-grow">ID:{response.authorId}</span>
         <div>
           <Dropdown
             arrowIcon={false}
@@ -52,7 +56,7 @@ const ResponseList = ({ responses }: Props) => {
               Delete Response (Abon)
             </Dropdown.Item>
             <Dropdown.Item
-              disabled={response.authed_token == null}
+              disabled={response.authedToken == null}
               onClick={() => {
                 // onClickDeleteAuthedToken(response.authed_token!!);
               }}
@@ -60,7 +64,7 @@ const ResponseList = ({ responses }: Props) => {
               Delete authed token
             </Dropdown.Item>
             <Dropdown.Item
-              disabled={response.authed_token == null}
+              disabled={response.authedToken == null}
               onClick={() => {
                 // onClickDeleteAuthedTokensAssociatedWithIp(
                 //   response.authed_token!!
@@ -79,8 +83,8 @@ const ResponseList = ({ responses }: Props) => {
         dangerouslySetInnerHTML={{ __html: response.body }}
       />
       <div className="text-gray-500 text-sm mt-2">
-        <p>IP: {response.ip_addr}</p>
-        <p>Authed Token: {response.authed_token}</p>
+        <p>IP: {response.ipAddr}</p>
+        <p>Authed Token: {response.authedToken}</p>
       </div>
     </div>
   ));

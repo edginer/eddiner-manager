@@ -3,10 +3,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import ThreadList from "./ThreadList";
 import Link from "next/link";
-import { DbBoard, DbThread } from "@/interfaces";
 import Breadcrumb from "@/components/Breadcrumb";
 import Tab from "@/components/Tab";
-import useSWR from "swr";
 import ArchivedThreadList from "./ArchivedThreadList";
 import { useSuspenseQuery } from "@apollo/client";
 import { gql } from "@/gql";
