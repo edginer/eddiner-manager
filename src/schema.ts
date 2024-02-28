@@ -3,6 +3,7 @@ export const schema = /* GraphQL */ `
     hello: String
     boards: [Board!]!
     board(boardKey: String!): Board
+    auditLogs: [AuditLog!]
   }
 
   type Board {
@@ -66,6 +67,15 @@ export const schema = /* GraphQL */ `
     ipAddr: String!
     authedToken: String
     isAbone: Boolean!
+  }
+
+  type AuditLog {
+    id: Int!
+    userEmail: String!
+    usedPermission: String!
+    info: String!
+    ipAddr: String!
+    timestamp: String!
   }
 
   type Mutation {

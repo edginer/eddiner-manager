@@ -1,0 +1,10 @@
+query GetAuditLogs {
+  auditLogs {
+    id
+    userEmail
+    usedPermission
+    info
+    ipAddr
+    timestamp
+  }
+}

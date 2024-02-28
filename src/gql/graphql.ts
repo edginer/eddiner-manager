@@ -51,6 +51,16 @@ export type ArchivedThread = {
   title: Scalars["String"]["output"];
 };
 
+export type AuditLog = {
+  __typename?: "AuditLog";
+  id: Scalars["Int"]["output"];
+  info: Scalars["String"]["output"];
+  ipAddr: Scalars["String"]["output"];
+  timestamp: Scalars["String"]["output"];
+  usedPermission: Scalars["String"]["output"];
+  userEmail: Scalars["String"]["output"];
+};
+
 export type Board = {
   __typename?: "Board";
   archivedThreads: Array<ArchivedThread>;
@@ -89,6 +99,7 @@ export type MutationUpdateResponseArgs = {
 
 export type Query = {
   __typename?: "Query";
+  auditLogs?: Maybe<Array<AuditLog>>;
   board?: Maybe<Board>;
   boards: Array<Board>;
   hello?: Maybe<Scalars["String"]["output"]>;
@@ -226,6 +237,21 @@ export type GetArchivedThreadsByQueryQuery = {
       boardId: number;
     }>;
   } | null;
+};
+
+export type GetAuditLogsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAuditLogsQuery = {
+  __typename?: "Query";
+  auditLogs?: Array<{
+    __typename?: "AuditLog";
+    id: number;
+    userEmail: string;
+    usedPermission: string;
+    info: string;
+    ipAddr: string;
+    timestamp: string;
+  }> | null;
 };
 
 export type GetBoardsQueryVariables = Exact<{ [key: string]: never }>;
@@ -754,6 +780,39 @@ export const GetArchivedThreadsByQueryDocument = {
   GetArchivedThreadsByQueryQuery,
   GetArchivedThreadsByQueryQueryVariables
 >;
+export const GetAuditLogsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetAuditLogs" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "auditLogs" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "userEmail" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "usedPermission" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "info" } },
+                { kind: "Field", name: { kind: "Name", value: "ipAddr" } },
+                { kind: "Field", name: { kind: "Name", value: "timestamp" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAuditLogsQuery, GetAuditLogsQueryVariables>;
 export const GetBoardsDocument = {
   kind: "Document",
   definitions: [

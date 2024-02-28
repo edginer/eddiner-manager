@@ -9,7 +9,8 @@ import {
 import { schema } from "@/schema";
 import { ArchivedThreadRepositoryImpl } from "../_repositories/archived_thread_repository";
 import { ArchivedRes, Res } from "@/interfaces";
-import { ArchivedRes as ArchivedResGql } from "@/gql/graphql";
+import { ArchivedRes as ArchivedResGql, AuditLog } from "@/gql/graphql";
+import { getAuditLogs } from "@/logger";
 
 const generator = (auth: Authentication) => {
   const bbsRepo: BbsRepository = new BbsRepositoryImpl();
@@ -25,6 +26,21 @@ const generator = (auth: Authentication) => {
             (await bbsRepo.getBoards2()).filter(
               (b) => b.boardKey === args.boardKey
             )[0],
+          auditLogs: async (_) => {
+            const logs = await getAuditLogs();
+            if (logs) {
+              return logs.map((x) => ({
+                id: x.id,
+                userEmail: x.user_email,
+                usedPermission: x.used_permission,
+                info: x.info,
+                ipAddr: x.ip_addr,
+                timestamp: x.timestamp,
+              })) satisfies AuditLog[];
+            } else {
+              return undefined;
+            }
+          },
         },
         Board: {
           threadCount: async (parent) => {

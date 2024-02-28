@@ -1,7 +1,7 @@
-import { selectedBoardState } from "@/atoms";
+// import { selectedBoardState } from "@/atoms";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { useRecoilState } from "recoil";
+// import { useRecoilState } from "recoil";
 
 interface BoardItemProps {
   boardKey: string;
@@ -15,16 +15,11 @@ const BoardItem: React.FC<BoardItemProps> = ({
   threadCount,
 }) => {
   const router = useRouter();
-  const [_, setSelectedBoard] = useRecoilState(selectedBoardState);
 
   return (
     <div
       className="rounded-lg mx-4 m-2 bg-white cursor-pointer hover:shadow-md border border-black"
       onClick={() => {
-        setSelectedBoard({
-          boardKey,
-          boardName,
-        });
         router.push(`/dashboard/boards/${boardKey}`);
       }}
     >

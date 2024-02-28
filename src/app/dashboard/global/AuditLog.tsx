@@ -1,10 +1,21 @@
-import { DbAuditLog } from "@/interfaces";
+import { gql } from "@/gql";
+import { useSuspenseQuery } from "@apollo/client";
 import { Table } from "flowbite-react";
 import React from "react";
-import useSWR from "swr";
+
+const GET_AUDIT_LOGS = gql(`query GetAuditLogs {
+  auditLogs {
+    id
+    userEmail
+    usedPermission
+    info
+    ipAddr
+    timestamp
+  }
+}`);
 
 const AuditLog = () => {
-  const { data: auditLogs } = useSWR<DbAuditLog[]>("/api/audit-logs");
+  const { data: auditLogs } = useSuspenseQuery(GET_AUDIT_LOGS);
   return (
     <Table>
       <Table.Head>
@@ -16,13 +27,13 @@ const AuditLog = () => {
         <Table.HeadCell>Timestamp</Table.HeadCell>
       </Table.Head>
       <Table.Body className="divide-y">
-        {auditLogs?.map((auditLog) => (
+        {auditLogs?.auditLogs?.map((auditLog) => (
           <Table.Row key={auditLog.id}>
             <Table.Cell>{auditLog.id}</Table.Cell>
-            <Table.Cell>{auditLog.user_email}</Table.Cell>
-            <Table.Cell>{auditLog.used_permission}</Table.Cell>
+            <Table.Cell>{auditLog.userEmail}</Table.Cell>
+            <Table.Cell>{auditLog.usedPermission}</Table.Cell>
             <Table.Cell>{auditLog.info}</Table.Cell>
-            <Table.Cell>{auditLog.ip_addr}</Table.Cell>
+            <Table.Cell>{auditLog.ipAddr}</Table.Cell>
             <Table.Cell>{auditLog.timestamp}</Table.Cell>
           </Table.Row>
         ))}

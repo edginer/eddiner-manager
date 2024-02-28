@@ -6,10 +6,8 @@ import React from "react";
 import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
-import { RecoilRoot } from "recoil";
 import { Spinner } from "flowbite-react";
 import { ErrorBoundary } from "react-error-boundary";
-import { SWRConfig } from "swr";
 import { ToastContainer } from "react-toastify";
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 
@@ -25,36 +23,25 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const fetcher = (url: string) => fetch(url).then((r) => r.json());
-
   return (
     <html lang="en">
       <body className={inter.className}>
-        <RecoilRoot>
-          <SWRConfig
-            value={{
-              fetcher,
-              suspense: true,
-            }}
-          >
-            <ApolloProvider client={apollotClient}>
-              <SessionProvider>
-                <ErrorBoundary
-                  fallbackRender={(props) => <div>Error: {props.error}</div>}
-                >
-                  <Suspense
-                    fallback={
-                      <Spinner size="xl" className="fixed inset-0 m-auto" />
-                    }
-                  >
-                    {children}
-                  </Suspense>
-                </ErrorBoundary>
-              </SessionProvider>
-            </ApolloProvider>
-            <ToastContainer theme="colored" />
-          </SWRConfig>
-        </RecoilRoot>
+        <ApolloProvider client={apollotClient}>
+          <SessionProvider>
+            <ErrorBoundary
+              fallbackRender={(props) => <div>Error: {props.error}</div>}
+            >
+              <Suspense
+                fallback={
+                  <Spinner size="xl" className="fixed inset-0 m-auto" />
+                }
+              >
+                {children}
+              </Suspense>
+            </ErrorBoundary>
+          </SessionProvider>
+        </ApolloProvider>
+        <ToastContainer theme="colored" />
       </body>
     </html>
   );

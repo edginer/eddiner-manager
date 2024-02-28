@@ -21,6 +21,8 @@ const documents = {
     types.GetArchivedThreadsDocument,
   "query GetArchivedThreadsByQuery($boardKey: String!, $page: Int!, $query: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(page: $page, query: $query) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n    }\n  }\n}":
     types.GetArchivedThreadsByQueryDocument,
+  "query GetAuditLogs {\n  auditLogs {\n    id\n    userEmail\n    usedPermission\n    info\n    ipAddr\n    timestamp\n  }\n}":
+    types.GetAuditLogsDocument,
   "query GetBoards {\n  boards {\n    id\n    name\n    boardKey\n    threadCount\n  }\n}":
     types.GetBoardsDocument,
   "query GetThreadData($boardKey: String!, $threadId: String!) {\n  board(boardKey: $boardKey) {\n    id\n    threads(threadNumber: $threadId) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      archived\n      active\n      authedCookie\n      modulo\n      responses {\n        id\n        name\n        mail\n        date\n        authorId\n        body\n        threadId\n        ipAddr\n        authedToken\n        timestamp\n        isAbone\n        boardId\n      }\n    }\n  }\n}":
@@ -69,6 +71,12 @@ export function gql(
 export function gql(
   source: "query GetArchivedThreadsByQuery($boardKey: String!, $page: Int!, $query: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(page: $page, query: $query) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n    }\n  }\n}",
 ): (typeof documents)["query GetArchivedThreadsByQuery($boardKey: String!, $page: Int!, $query: String!) {\n  board(boardKey: $boardKey) {\n    id\n    archivedThreads(page: $page, query: $query) {\n      threadNumber\n      title\n      responseCount\n      lastModified\n      boardId\n    }\n  }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(
+  source: "query GetAuditLogs {\n  auditLogs {\n    id\n    userEmail\n    usedPermission\n    info\n    ipAddr\n    timestamp\n  }\n}",
+): (typeof documents)["query GetAuditLogs {\n  auditLogs {\n    id\n    userEmail\n    usedPermission\n    info\n    ipAddr\n    timestamp\n  }\n}"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
