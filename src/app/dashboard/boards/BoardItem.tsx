@@ -1,7 +1,5 @@
-// import { selectedBoardState } from "@/atoms";
 import { useRouter } from "next/navigation";
 import React from "react";
-// import { useRecoilState } from "recoil";
 
 interface BoardItemProps {
   boardKey: string;
