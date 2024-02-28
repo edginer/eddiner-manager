@@ -95,7 +95,7 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
       }
     }
 
-    const boards = await this.bbsRepo.getBoards2();
+    const boards = await this.bbsRepo.getBoards();
     const board = boards.find((b) => b.id === boardId);
     if (board == null) {
       throw new Error("Board not found");

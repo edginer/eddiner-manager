@@ -21,9 +21,9 @@ const generator = (auth: Authentication) => {
         Query: {
           hello: (_, args) =>
             `Hello from Yoga!, ${args.hello}, ${auth.userEmail} ${auth.permissions}`,
-          boards: async (_) => bbsRepo.getBoards2(),
+          boards: async (_) => bbsRepo.getBoards(),
           board: async (_, args) =>
-            (await bbsRepo.getBoards2()).filter(
+            (await bbsRepo.getBoards()).filter(
               (b) => b.boardKey === args.boardKey
             )[0],
           auditLogs: async (_) => {
@@ -48,9 +48,9 @@ const generator = (auth: Authentication) => {
           },
           threads: async (parent, args) => {
             if (args.threadNumber) {
-              return [await bbsRepo.getThread2(parent.id, args.threadNumber)];
+              return [await bbsRepo.getThread(parent.id, args.threadNumber)];
             } else {
-              return await bbsRepo.getThreads2(parent.id);
+              return await bbsRepo.getThreads(parent.id);
             }
           },
           archivedThreads: async (parent, args) => {
@@ -59,7 +59,7 @@ const generator = (auth: Authentication) => {
                 await bbsRepo.headArchivedThread(parent.id, args.threadId),
               ];
             } else {
-              return await bbsRepo.getArchivedThreads2(parent.id, {
+              return await bbsRepo.getArchivedThreads(parent.id, {
                 page: args.page,
                 query: args.query,
               });
@@ -69,9 +69,9 @@ const generator = (auth: Authentication) => {
         Thread: {
           responses: async (parent, args) => {
             if (args.id) {
-              return [await bbsRepo.getResponse2(args.id, parent.modulo)];
+              return [await bbsRepo.getResponse(args.id, parent.modulo)];
             }
-            return await bbsRepo.getResponses2(
+            return await bbsRepo.getResponses(
               parent.boardId,
               parent.threadNumber,
               parent.modulo
@@ -113,11 +113,11 @@ const generator = (auth: Authentication) => {
           updateResponse: async (_, args) => {
             const { res } = args;
             const { name, mail, body, threadId, boardId, isAbone } = res;
-            const thread = await bbsRepo.getThread2(boardId, threadId);
+            const thread = await bbsRepo.getThread(boardId, threadId);
             if (!thread) {
               throw new Error("Thread not found");
             }
-            await bbsRepo.updateResponse2({
+            await bbsRepo.updateResponse({
               id: res.id,
               name,
               mail,
@@ -125,7 +125,7 @@ const generator = (auth: Authentication) => {
               modulo: thread.modulo,
               isAbone,
             });
-            const response = await bbsRepo.getResponse2(res.id, thread.modulo);
+            const response = await bbsRepo.getResponse(res.id, thread.modulo);
             return response;
           },
           deleteAuthedToken: async (_, args) => {

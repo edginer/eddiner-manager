@@ -11,18 +11,11 @@ import {
 import { Database } from "@cloudflare/d1";
 
 export interface BbsRepository {
-  getBoards(): Promise<DbBoard[]>;
-  getBoards2(): Promise<Board[]>;
-  getThreads(boardId: number): Promise<DbThread[]>;
-  getThreads2(boardId: number): Promise<Thread[]>;
+  getBoards(): Promise<Board[]>;
+  getThreads(boardId: number): Promise<Thread[]>;
   getThreadsCount(boardId: number): Promise<number>;
-  getThread(boardId: number, threadId: string): Promise<DbThread | undefined>;
-  getThread2(boardId: number, threadId: string): Promise<Thread | undefined>;
+  getThread(boardId: number, threadId: string): Promise<Thread | undefined>;
   getArchivedThreads(
-    boardId: number,
-    options: { page?: number; query?: string }
-  ): Promise<DbThread[]>;
-  getArchivedThreads2(
     boardId: number,
     options: { page?: number; query?: string }
   ): Promise<ArchivedThread[]>;
@@ -30,16 +23,9 @@ export interface BbsRepository {
     boardId: number,
     threadId: string,
     modulo: number
-  ): Promise<DbRes[]>;
-  getResponses2(
-    boardId: number,
-    threadId: string,
-    modulo: number
   ): Promise<Res[]>;
-  getResponse(responseId: number, modulo: number): Promise<DbRes | undefined>;
-  getResponse2(responseId: number, modulo: number): Promise<Res | undefined>;
-  updateResponse(response: DbRes, modulo: number): Promise<void>;
-  updateResponse2(
+  getResponse(responseId: number, modulo: number): Promise<Res | undefined>;
+  updateResponse(
     response: Omit<
       Partial<Res> & { id: number; modulo: number },
       "boardId" | "threadId" | "date" | "ipAddr" | "authedToken" | "timestamp"
@@ -70,15 +56,7 @@ export class BbsRepositoryImpl implements BbsRepository {
     ];
   }
 
-  async getBoards() {
-    const { results } = await this.infosDb
-      .prepare("SELECT * FROM boards")
-      .all();
-
-    return results as unknown[] as DbBoard[];
-  }
-
-  async getBoards2(): Promise<Board[]> {
+  async getBoards(): Promise<Board[]> {
     const { results } = await this.infosDb
       .prepare("SELECT * FROM boards")
       .all();
@@ -102,16 +80,7 @@ export class BbsRepositoryImpl implements BbsRepository {
     return (count as unknown as { "COUNT(*)": number })["COUNT(*)"];
   }
 
-  async getThreads(boardId: number) {
-    const { results } = await this.threadsDb
-      .prepare("SELECT * FROM threads WHERE board_id = ?")
-      .bind(boardId)
-      .all();
-
-    return results as unknown[] as DbThread[];
-  }
-
-  async getThreads2(boardId: number): Promise<Thread[]> {
+  async getThreads(boardId: number): Promise<Thread[]> {
     const { results } = await this.threadsDb
       .prepare("SELECT * FROM threads WHERE board_id = ?")
       .bind(boardId)
@@ -133,16 +102,7 @@ export class BbsRepositoryImpl implements BbsRepository {
     }));
   }
 
-  async getThread(boardId: number, threadId: string) {
-    const thread = await this.threadsDb
-      .prepare("SELECT * FROM threads WHERE board_id = ? AND thread_number = ?")
-      .bind(boardId, threadId)
-      .first();
-
-    return thread as unknown as DbThread | undefined;
-  }
-
-  async getThread2(
+  async getThread(
     boardId: number,
     threadId: string
   ): Promise<Thread | undefined> {
@@ -172,21 +132,6 @@ export class BbsRepositoryImpl implements BbsRepository {
     boardId: number,
     threadId: string,
     modulo: number
-  ): Promise<DbRes[]> {
-    const { results } = await this.responsesDbs[modulo]
-      .prepare(
-        "SELECT * FROM responses WHERE board_id = ? AND thread_id = ? ORDER BY id ASC"
-      )
-      .bind(boardId, threadId)
-      .all();
-
-    return results as unknown[] as DbRes[];
-  }
-
-  async getResponses2(
-    boardId: number,
-    threadId: string,
-    modulo: number
   ): Promise<Res[]> {
     const { results } = await this.responsesDbs[modulo]
       .prepare(
@@ -213,16 +158,7 @@ export class BbsRepositoryImpl implements BbsRepository {
     }));
   }
 
-  async getResponse(responseId: number, modulo: number): Promise<DbRes> {
-    const response = await this.responsesDbs[modulo]
-      .prepare("SELECT * FROM responses WHERE id = ?")
-      .bind(responseId)
-      .first();
-
-    return response as unknown as DbRes;
-  }
-
-  async getResponse2(responseId: number, modulo: number): Promise<Res> {
+  async getResponse(responseId: number, modulo: number): Promise<Res> {
     const response = await this.responsesDbs[modulo]
       .prepare("SELECT * FROM responses WHERE id = ?")
       .bind(responseId)
@@ -246,54 +182,6 @@ export class BbsRepositoryImpl implements BbsRepository {
   }
 
   async updateResponse(
-    res: Omit<
-      Partial<DbRes> & { id: number },
-      | "board_id"
-      | "thread_id"
-      | "date"
-      | "ip_addr"
-      | "authed_token"
-      | "timestamp"
-    >,
-    modulo: number
-  ): Promise<void> {
-    const { id, author_id, name, mail, body, is_abone } = res;
-    const columnNames = [];
-    const sets: (string | number)[] = [];
-    if (author_id) {
-      sets.push(author_id);
-      columnNames.push("author_id");
-    }
-    if (name) {
-      sets.push(name);
-      columnNames.push("name");
-    }
-    if (mail) {
-      sets.push(mail);
-      columnNames.push("mail");
-    }
-    if (body) {
-      sets.push(body);
-      columnNames.push("body");
-    }
-    if (is_abone) {
-      sets.push(is_abone);
-      columnNames.push("is_abone");
-    }
-    let setString = "";
-    for (let i = 0; i < columnNames.length; i++) {
-      setString += `${columnNames[i]} = ?`;
-      if (i !== sets.length - 1) {
-        setString += ", ";
-      }
-    }
-    await this.responsesDbs[modulo]
-      .prepare(`UPDATE responses SET ${setString} WHERE id = ?`)
-      .bind(...sets, id)
-      .run();
-  }
-
-  async updateResponse2(
     res: Omit<
       Partial<Res> & { id: number; modulo: number },
       "boardId" | "threadId" | "date" | "ipAddr" | "authedToken" | "timestamp"
@@ -336,32 +224,6 @@ export class BbsRepositoryImpl implements BbsRepository {
   }
 
   async getArchivedThreads(
-    boardId: number,
-    options: { page?: number; query?: string }
-  ) {
-    const { page, query } = options;
-    const parsedPage = page ?? NaN;
-
-    if (query) {
-      const { results } = await this.infosDb
-        .prepare(
-          "SELECT * FROM archives WHERE board_id = ? AND title LIKE %?% LIMIT 25 OFFSET ?"
-        )
-        .bind(boardId, query, isNaN(parsedPage) ? 0 : parsedPage * 25)
-        .all();
-
-      return results as unknown[] as DbThread[];
-    } else {
-      const { results } = await this.infosDb
-        .prepare("SELECT * FROM archives WHERE board_id = ? LIMIT 25 OFFSET ?")
-        .bind(boardId, isNaN(parsedPage) ? 0 : parsedPage * 25)
-        .all();
-
-      return results as unknown[] as DbThread[];
-    }
-  }
-
-  async getArchivedThreads2(
     boardId: number,
     options: { page?: number; query?: string }
   ): Promise<ArchivedThread[]> {
