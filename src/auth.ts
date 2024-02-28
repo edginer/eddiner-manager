@@ -1,5 +1,5 @@
 import Auth0Provider from "next-auth/providers/auth0";
-import type { NextAuthConfig, Session, User } from "next-auth";
+import type { NextAuthConfig, Session } from "next-auth";
 import NextAuth from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { D1Adapter } from "@auth/d1-adapter";

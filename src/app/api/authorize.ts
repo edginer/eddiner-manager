@@ -1,5 +1,5 @@
 import { Permission } from "@/interfaces";
-import { authenticate } from "./authenticate";
+import { Authentication, authenticate } from "./authenticate";
 
 interface SuccessfulAuthorizeResponse {
   success: true;
@@ -65,4 +65,22 @@ export const authorize = async (
       response: e as Response,
     };
   }
+};
+
+export const hasPermission = (
+  authentication: Authentication,
+  permission: Permission
+) => {
+  if (authentication.permissions.includes("all")) {
+    return true;
+  }
+
+  const [reqTarget, reqAction] = permission.split(":");
+  for (const authedPermission of authentication.permissions) {
+    const [target, action] = authedPermission.split(":");
+    if (reqTarget === target && (reqAction === action || action === "all")) {
+      return true;
+    }
+  }
+  return false;
 };

@@ -8,9 +8,10 @@ import {
 } from "../_repositories/bbs_repository";
 import { schema } from "@/schema";
 import { ArchivedThreadRepositoryImpl } from "../_repositories/archived_thread_repository";
-import { ArchivedRes, Res } from "@/interfaces";
+import { ArchivedRes, Permission, Res } from "@/interfaces";
 import { ArchivedRes as ArchivedResGql, AuditLog } from "@/gql/graphql";
-import { getAuditLogs } from "@/logger";
+import { addAuditLog, getAuditLogs } from "@/logger";
+import { hasPermission } from "../authorize";
 
 const generator = (auth: Authentication) => {
   const bbsRepo: BbsRepository = new BbsRepositoryImpl();
@@ -27,6 +28,10 @@ const generator = (auth: Authentication) => {
               (b) => b.boardKey === args.boardKey
             )[0],
           auditLogs: async (_) => {
+            if (!hasPermission(auth, "audit-logs:list")) {
+              throw new Error("Unauthorized");
+            }
+
             const logs = await getAuditLogs();
             if (logs) {
               return logs.map((x) => ({
@@ -117,6 +122,17 @@ const generator = (auth: Authentication) => {
             if (!thread) {
               throw new Error("Thread not found");
             }
+
+            if (name == null && mail == null && body == null) {
+              if (!hasPermission(auth, "responses:delete")) {
+                throw new Error("Unauthorized");
+              }
+            } else {
+              if (!hasPermission(auth, "responses:edit")) {
+                throw new Error("Unauthorized");
+              }
+            }
+
             await bbsRepo.updateResponse({
               id: res.id,
               name,
@@ -126,11 +142,50 @@ const generator = (auth: Authentication) => {
               isAbone,
             });
             const response = await bbsRepo.getResponse(res.id, thread.modulo);
+
+            let perm: Permission = "responses:edit";
+            if (name == null && mail == null && body == null) {
+              perm = "responses:delete";
+            }
+
+            await addAuditLog({
+              user_email: auth.userEmail,
+              used_permission: perm,
+              info: JSON.stringify(res),
+              ip_addr: auth.ipAddr,
+            });
+
             return response;
           },
           deleteAuthedToken: async (_, args) => {
             const { token, usingOriginIp } = args;
+            if (
+              !usingOriginIp &&
+              !hasPermission(auth, "authed-tokens:delete")
+            ) {
+              throw new Error("Unauthorized");
+            }
+            if (
+              usingOriginIp &&
+              !hasPermission(auth, "authed-tokens:delete-by-ip")
+            ) {
+              throw new Error("Unauthorized");
+            }
+
             await bbsRepo.deleteAuthedToken(token, usingOriginIp);
+
+            let perm: Permission = "authed-tokens:delete";
+            if (usingOriginIp) {
+              perm = "authed-tokens:delete-by-ip";
+            }
+
+            await addAuditLog({
+              user_email: auth.userEmail,
+              used_permission: perm,
+              info: `{"authedToken": "${token}"}`,
+              ip_addr: auth.ipAddr,
+            });
+
             return true;
           },
         },
