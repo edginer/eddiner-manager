@@ -1,5 +1,7 @@
 # Permissions and roles of this applciations
+
 ## Permissions
+
 - all (all means system admin)
 - boards
   - create
@@ -48,6 +50,7 @@
   - show
 
 ## Default Roles
+
 - Admin
   - All of permissions
 - Moderator
@@ -62,7 +65,7 @@
   - authed-tokens
     - all
   - admin-users
-    - edit 
+    - edit
       - this permission is automatically enabled if target resource is requested user resource
   - caps
     - list:me

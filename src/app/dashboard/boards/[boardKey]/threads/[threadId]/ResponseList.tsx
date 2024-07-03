@@ -33,7 +33,7 @@ const ResponseList = ({
           onClick={() => {
             if (selectedResponses.includes(response)) {
               setSelectedResponses(
-                selectedResponses.filter((res) => res !== response)
+                selectedResponses.filter((res) => res !== response),
               );
             } else {
               setSelectedResponses([...selectedResponses, response]);
@@ -80,7 +80,7 @@ const ResponseList = ({
               disabled={response.authedToken == null}
               onClick={() => {
                 onClickDeleteAuthedTokensAssociatedWithIp(
-                  response.authedToken!!
+                  response.authedToken!!,
                 );
               }}
             >

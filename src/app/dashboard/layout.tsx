@@ -102,7 +102,7 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div
             className={twMerge(
               " bg-gray-50 text-black z-10 flex flex-col h-screen",
-              !isNavbarOpen && "hidden"
+              !isNavbarOpen && "hidden",
             )}
           >
             <ul className="pt-2 text-lg text-blue-700 font-semibold">

@@ -7,7 +7,7 @@ import { BbsRepository } from "./bbs_repository";
 export interface ArchivedThreadRepository {
   getArchivedThreadData(
     boardId: number,
-    threadId: string
+    threadId: string,
   ): Promise<ArchivedRes[]>;
 
   getAdminArchivedThreadData(boardId: number, threadId: string): Promise<Res[]>;
@@ -36,7 +36,7 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
 
   async getArchivedThreadData(
     boardId: number,
-    threadId: string
+    threadId: string,
   ): Promise<ArchivedRes[]> {
     const thread = await this.bbsRepo.headArchivedThread(boardId, threadId);
     const boardKey = await this.getBoardKey(boardId);
@@ -57,7 +57,7 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
 
   async getAdminArchivedThreadData(
     boardId: number,
-    threadId: string
+    threadId: string,
   ): Promise<Res[]> {
     const thread = await this.bbsRepo.headArchivedThread(boardId, threadId);
     const boardKey = await this.getBoardKey(boardId);
@@ -67,18 +67,18 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
     }
 
     const datFile = await this.datBucket.get(
-      `${boardKey}/admin/${threadId}.dat`
+      `${boardKey}/admin/${threadId}.dat`,
     );
     if (datFile == null) {
       throw new Error(
-        `Dat file is not found: ${boardKey}/admin/${threadId}.dat`
+        `Dat file is not found: ${boardKey}/admin/${threadId}.dat`,
       );
     }
     const datText = await datFile.text();
     const reses = convertAdminDatFileToAdminRes(
       thread.boardId,
       thread.threadNumber,
-      datText
+      datText,
     );
 
     return reses;
@@ -86,7 +86,7 @@ export class ArchivedThreadRepositoryImpl implements ArchivedThreadRepository {
 
   private async getBoardKey(
     boardId: number,
-    cache: boolean = true
+    cache: boolean = true,
   ): Promise<string> {
     if (cache) {
       const boardKey = this.boardIdToBoardKey.get(boardId);
@@ -138,7 +138,7 @@ const convertDatFileToRes = (datFile: string): ArchivedRes[] => {
 const convertAdminDatFileToAdminRes = (
   boardId: number,
   threadId: string,
-  adminDatFile: string
+  adminDatFile: string,
 ): Res[] => {
   return (
     adminDatFile

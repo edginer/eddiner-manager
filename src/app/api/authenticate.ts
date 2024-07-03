@@ -25,7 +25,7 @@ export const authenticate = async (req: Request): Promise<Authentication> => {
 
   try {
     const { results: users } = await process.env.ADMIN_DB.prepare(
-      "SELECT * FROM users"
+      "SELECT * FROM users",
     ).all();
 
     // SAFETY: ref admin-migrations/0000_d1-adapter.sql and use users.id and users.email
@@ -33,7 +33,7 @@ export const authenticate = async (req: Request): Promise<Authentication> => {
     await initialize(usersAny);
 
     const targetUser = usersAny.find(
-      (user) => user.email === session?.user?.email
+      (user) => user.email === session?.user?.email,
     );
     if (!targetUser) {
       throw new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -42,12 +42,12 @@ export const authenticate = async (req: Request): Promise<Authentication> => {
     }
     const userId = targetUser.id as string;
     const roleId = (await process.env.ADMIN_DB.prepare(
-      "SELECT role_id FROM users_by_roles WHERE user_id = ?"
+      "SELECT role_id FROM users_by_roles WHERE user_id = ?",
     )
       .bind(userId)
       .first()) as { role_id: number };
     const { results: permissionResult } = await process.env.ADMIN_DB.prepare(
-      "SELECT permission_name FROM roles_by_permissions WHERE role_id = ?"
+      "SELECT permission_name FROM roles_by_permissions WHERE role_id = ?",
     )
       .bind(roleId.role_id)
       .all();
@@ -75,7 +75,7 @@ const initialize = async (users: any) => {
   }
 
   const usersByRolesCount = (await process.env.ADMIN_DB.prepare(
-    "SELECT COUNT(*) FROM users_by_roles"
+    "SELECT COUNT(*) FROM users_by_roles",
   ).first()) as { "COUNT(*)": number };
   if (usersByRolesCount["COUNT(*)"] !== 0) {
     return false;
@@ -83,7 +83,7 @@ const initialize = async (users: any) => {
 
   // Add admin role to the first user
   await process.env.ADMIN_DB.prepare(
-    "INSERT INTO users_by_roles (user_id, role_id) VALUES (?, 1)"
+    "INSERT INTO users_by_roles (user_id, role_id) VALUES (?, 1)",
   )
     .bind(users[0].id)
     .run();

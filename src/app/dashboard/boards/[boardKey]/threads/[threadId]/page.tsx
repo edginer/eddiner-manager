@@ -67,7 +67,7 @@ const Page = ({
   params: { boardKey: string; threadId: string };
 }) => {
   const [selectedEditingRes, setSelectedEditingRes] = useState<Res | undefined>(
-    undefined
+    undefined,
   );
   const [selectedResponses, setSelectedResponses] = useState<Res[]>([]);
   const [showingFloatingDetail, setShowingFloatingDetail] = useState(false);
@@ -96,7 +96,7 @@ const Page = ({
         return error;
       }
     },
-    [refetch, updateRespMut]
+    [refetch, updateRespMut],
   );
   const deleteAuthedCookie = useCallback(
     async (token: string, deleteAllSameOriginIp: boolean) => {
@@ -114,7 +114,7 @@ const Page = ({
         return error;
       }
     },
-    [deleteAuthedCookieMut]
+    [deleteAuthedCookieMut],
   );
 
   return (
@@ -222,7 +222,7 @@ const Page = ({
         <ResponseList
           onClickAbon={async (responseId) => {
             const res = threadDataGql?.board?.threads[0].responses.find(
-              (res) => Number(res.id) === responseId
+              (res) => Number(res.id) === responseId,
             );
             toast.error("Not implemented");
             if (res) {
@@ -243,7 +243,7 @@ const Page = ({
           }}
           responses={
             threadDataGql?.board?.threads[0].responses.filter(
-              (r) => r != null
+              (r) => r != null,
             ) ?? []
           }
           {...{ selectedResponses, setSelectedResponses }}

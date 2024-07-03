@@ -19,7 +19,7 @@ type AuthorizeResponse = SuccessfulAuthorizeResponse | FailedAuthorizeResponse;
 // TODO: `caps:{list,show,edit-password}:me` permission support
 export const authorize = async (
   req: Request,
-  requiredPermissions?: Permission[]
+  requiredPermissions?: Permission[],
 ): Promise<AuthorizeResponse> => {
   try {
     const authed = await authenticate(req);
@@ -69,7 +69,7 @@ export const authorize = async (
 
 export const hasPermission = (
   authentication: Authentication,
-  permission: Permission
+  permission: Permission,
 ) => {
   if (authentication.permissions.includes("all")) {
     return true;

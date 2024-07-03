@@ -43,14 +43,14 @@ const ArchivedThreadList = ({ boardKey, boardName }: Props) => {
         page: currentPage - 1,
         query: searchText,
       },
-    }
+    },
   );
 
   const onPageChange = useCallback(
     (page: number) => {
       setCurrentPage(page);
     },
-    [setCurrentPage]
+    [setCurrentPage],
   );
 
   return (
@@ -67,7 +67,7 @@ const ArchivedThreadList = ({ boardKey, boardName }: Props) => {
             onChange={(e) =>
               setSelectedArchiveSearchKind(
                 // SAFETY: e.target.value is always either "id" or "title" because of the <option> elements
-                e.target.value as "id" | "title"
+                e.target.value as "id" | "title",
               )
             }
           >
@@ -108,7 +108,7 @@ const ArchivedThreadList = ({ boardKey, boardName }: Props) => {
             "ml-2 w-10 h-10 rounded-md shadow-md focus-visible:ring-2 flex items-center justify-center",
             archiveDatSearchValidationError
               ? "bg-slate-300"
-              : "bg-slate-400 hover:shadow-xl hover:bg-slate-700"
+              : "bg-slate-400 hover:shadow-xl hover:bg-slate-700",
           )}
           disabled={
             archiveDatSearchValidationError || setArchiveSearchText.length === 0

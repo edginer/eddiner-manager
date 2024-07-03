@@ -28,7 +28,7 @@ const Tab = <TKey extends string>({
   }
 
   const [selectedTabKey, setSelectedTabKey] = useState<TKey>(
-    tabItems[0].tabKey
+    tabItems[0].tabKey,
   );
   useEffect(() => {
     if (onSelectedTabChange) {
@@ -52,7 +52,7 @@ const Tab = <TKey extends string>({
                     "inline-block p-4 border-b-2 rounded-t-lg",
                     selectedTabKey === tabItem.tabKey
                       ? selectedTabClassNames
-                      : unselectedTabClassNames
+                      : unselectedTabClassNames,
                   )}
                   id={tabItem.id ?? tabItem.tabKey}
                   type="button"

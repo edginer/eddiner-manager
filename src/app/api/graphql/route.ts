@@ -25,7 +25,7 @@ const generator = (auth: Authentication) => {
           boards: async (_) => bbsRepo.getBoards(),
           board: async (_, args) =>
             (await bbsRepo.getBoards()).filter(
-              (b) => b.boardKey === args.boardKey
+              (b) => b.boardKey === args.boardKey,
             )[0],
           auditLogs: async (_) => {
             if (!hasPermission(auth, "audit-logs:list")) {
@@ -79,23 +79,23 @@ const generator = (auth: Authentication) => {
             return await bbsRepo.getResponses(
               parent.boardId,
               parent.threadNumber,
-              parent.modulo
+              parent.modulo,
             );
           },
         },
         ArchivedThread: {
           responses: async (parent) => {
             const archivedThreadRepo = new ArchivedThreadRepositoryImpl(
-              bbsRepo
+              bbsRepo,
             );
             const promises = [
               archivedThreadRepo.getArchivedThreadData(
                 parent.boardId,
-                parent.threadNumber
+                parent.threadNumber,
               ),
               archivedThreadRepo.getAdminArchivedThreadData(
                 parent.boardId,
-                parent.threadNumber
+                parent.threadNumber,
               ),
             ];
             const [archivedRes, adminArchivedRes] = await Promise.all(promises);
