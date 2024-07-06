@@ -1,34 +1,46 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# eddiner-manager
 
-## Getting Started
+## Pre-requisites
+- Install LTS Node
+- Install wrangler
+- Setup [eddiner](https://github.com/edginer/eddiner)
 
-First, run the development server:
+## Deploy (first)
+- Run `npm ci`
+- Run `npm run pages:deploy`
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## Setup Auth0 and environment variables
+- Create Auth0 Account
+- Create Auth0 Application with Single Page Application
+  - Setup Auth0 Database
+    - We recommend 'Disable Sign Ups' for now
+  - Add user on created DB
+  - Connect the DB to the application
+  - We use below constants for environment variables
+    - Application -> Client ID as `AUTH0_CLIENT_ID` (should be secret)
+    - Application -> Client Secret as `AUTH0_CLIENT_SECRET` (should be secret)
+    - Application -> Domain as `AUTH0_DOMAIN`
+- Set environment variables
+  - `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_DOMAIN`
+    - using values from Auth0
+  - `AUTH_SECRET`
+    - generate from your command line using `openssl rand -base64 32` and use it
+    - should be secret
+- Set your eddiner D1 database and R2 bucket
+  - D1
+    - you need to set response tables and info, thread DB
+      - `DB_RESPONSES`, `DB_RESPONSES_2`, `DB_RESPONSES_3`
+      - `DB_THREADS`
+      - `DB` (for info DB containing such as caps, boards)
+    - you need to create `ADMIN_DB` for account and session management
+  - R2
+    - you need to connect archived dat buckets via `ARCHIVE_BUCKET`
+    - run up migration using this `upSQLStatements` via Cloudflare dashboard
+  
+## Redeploy application
+- You need to redeploy application to reflect updated environment variables
+  - Run `npm run pages:deploy`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## License
+Same as [eddiner](https://github.com/edginer/eddiner)
