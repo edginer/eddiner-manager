@@ -9,7 +9,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import clsx from "clsx";
 import { Button, Modal } from "flowbite-react";
 import { toast } from "react-toastify";
-import { Res } from "@/gql/graphql";
+import { Res, ResInput } from "@/gql/graphql";
 import { gql } from "@/gql/gql";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
 
@@ -67,7 +67,7 @@ const Page = ({
   params: { boardKey: string; threadId: string };
 }) => {
   const [selectedEditingRes, setSelectedEditingRes] = useState<Res | undefined>(
-    undefined,
+    undefined
   );
   const [selectedResponses, setSelectedResponses] = useState<Res[]>([]);
   const [showingFloatingDetail, setShowingFloatingDetail] = useState(false);
@@ -82,7 +82,7 @@ const Page = ({
   const [deleteAuthedCookieMut] = useMutation(DELETE_AUTHED_TOKEN);
 
   const updateResponse = useCallback(
-    async (res: Res) => {
+    async (res: ResInput) => {
       try {
         const _result = await updateRespMut({
           variables: {
@@ -96,7 +96,7 @@ const Page = ({
         return error;
       }
     },
-    [refetch, updateRespMut],
+    [refetch, updateRespMut]
   );
   const deleteAuthedCookie = useCallback(
     async (token: string, deleteAllSameOriginIp: boolean) => {
@@ -114,7 +114,7 @@ const Page = ({
         return error;
       }
     },
-    [deleteAuthedCookieMut],
+    [deleteAuthedCookieMut]
   );
 
   return (
@@ -222,12 +222,18 @@ const Page = ({
         <ResponseList
           onClickAbon={async (responseId) => {
             const res = threadDataGql?.board?.threads[0].responses.find(
-              (res) => Number(res.id) === responseId,
+              (res) => Number(res.id) === responseId
             );
-            toast.error("Not implemented");
+
             if (res) {
-              res.isAbone = true;
-              await updateResponse(res);
+              const abonedRes = {
+                id: res.id,
+                body: res.body,
+                threadId: res.threadId,
+                boardId: res.boardId,
+                isAbone: true,
+              };
+              await updateResponse(abonedRes);
             }
           }}
           onClickDeleteAuthedToken={async (token) => {
@@ -243,7 +249,7 @@ const Page = ({
           }}
           responses={
             threadDataGql?.board?.threads[0].responses.filter(
-              (r) => r != null,
+              (r) => r != null
             ) ?? []
           }
           {...{ selectedResponses, setSelectedResponses }}

@@ -33,9 +33,9 @@
       - `DB_THREADS`
       - `DB` (for info DB containing such as caps, boards)
     - you need to create `ADMIN_DB` for account and session management
+  - run up migration using this `upSQLStatements` via Cloudflare dashboard
   - R2
     - you need to connect archived dat buckets via `ARCHIVE_BUCKET`
-    - run up migration using this `upSQLStatements` via Cloudflare dashboard
   
 ## Redeploy application
 - You need to redeploy application to reflect updated environment variables
