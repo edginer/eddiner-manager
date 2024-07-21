@@ -1,15 +1,14 @@
-import { Database } from "@cloudflare/d1";
-import type { R2Bucket } from "@cloudflare/workers-types";
+import type { D1Database, R2Bucket } from "@cloudflare/workers-types";
 
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      DB: Database;
-      DB_RESPONSES: Database;
-      DB_THREADS: Database;
-      DB_RESPONSES_2: Database;
-      DB_RESPONSES_3: Database;
-      ADMIN_DB: Database;
+      DB: D1Database;
+      DB_RESPONSES: D1Database;
+      DB_THREADS: D1Database;
+      DB_RESPONSES_2: D1Database;
+      DB_RESPONSES_3: D1Database;
+      ADMIN_DB: D1Database;
       ARCHIVE_BUCKET: R2Bucket;
     }
   }

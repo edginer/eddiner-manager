@@ -16,7 +16,6 @@
   "dependencies": {
     "@apollo/client": "^3.9.5",
     "@auth/d1-adapter": "^0.2.4",
-    "@cloudflare/d1": "^1.4.1",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@types/node": "20.8.7",
     "@types/react": "18.2.31",

@@ -12,7 +12,7 @@ import {
   Res,
   Thread,
 } from "@/interfaces";
-import { Database } from "@cloudflare/d1";
+import type { D1Database } from "@cloudflare/workers-types";
 
 export interface BbsRepository {
   getBoards(): Promise<Board[]>;
@@ -50,9 +50,9 @@ export interface BbsRepository {
 }
 
 export class BbsRepositoryImpl implements BbsRepository {
-  infosDb: Database;
-  threadsDb: Database;
-  responsesDbs: Database[];
+  infosDb: D1Database;
+  threadsDb: D1Database;
+  responsesDbs: D1Database[];
 
   constructor() {
     this.infosDb = process.env.DB;

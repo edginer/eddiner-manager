@@ -14,9 +14,6 @@ importers:
       '@auth/d1-adapter':
         specifier: ^0.2.4
         version: 0.2.15
-      '@cloudflare/d1':
-        specifier: ^1.4.1
-        version: 1.4.1
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.8.1)
@@ -469,10 +466,6 @@ packages:
   '@babel/types@7.23.9':
     resolution: {integrity: sha512-dQjSq/7HaSjRM43FFGnv5keM2HsxpmyV1PfaSVm0nzzjwwTmjOe6J4bC8e3+pTEIgHaHj+1ZlLThRJ2auc/w1Q==}
     engines: {node: '>=6.9.0'}
-
-  '@cloudflare/d1@1.4.1':
-    resolution: {integrity: sha512-czIBkVoZG7csWK0GVpWXqvnfM2Uv91AqdhwXeTPd1zpdQ+x/or492tD1ybVe679868bGMsHRqtHxp+5rwHXRaA==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@cloudflare/kv-asset-handler@0.3.1':
     resolution: {integrity: sha512-lKN2XCfKCmpKb86a1tl4GIwsJYDy9TGuwjhDELLmpKygQhw8X2xR4dusgpC5Tg7q1pB96Eb0rBo81kxSILQMwA==}
@@ -4762,8 +4755,6 @@ snapshots:
       '@babel/helper-string-parser': 7.23.4
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
-
-  '@cloudflare/d1@1.4.1': {}
 
   '@cloudflare/kv-asset-handler@0.3.1':
     dependencies:
