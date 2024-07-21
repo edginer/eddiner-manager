@@ -105,7 +105,7 @@ export type MutationDeleteNgWordArgs = {
 };
 
 export type MutationUpdateNgWordArgs = {
-  ngWord: NgWord;
+  ngWord: NgWordInput;
 };
 
 export type MutationUpdateResponseArgs = {
@@ -121,6 +121,13 @@ export type NgWord = {
 };
 
 export type NgWordAddInput = {
+  name: Scalars["String"]["input"];
+  restrictionType: Scalars["String"]["input"];
+  value: Scalars["String"]["input"];
+};
+
+export type NgWordInput = {
+  id: Scalars["Int"]["input"];
   name: Scalars["String"]["input"];
   restrictionType: Scalars["String"]["input"];
   value: Scalars["String"]["input"];
@@ -294,6 +301,19 @@ export type GetBoardsQuery = {
     name: string;
     boardKey: string;
     threadCount: number;
+  }>;
+};
+
+export type GetNgWordsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetNgWordsQuery = {
+  __typename?: "Query";
+  ngWords: Array<{
+    __typename?: "NgWord";
+    id: number;
+    name: string;
+    value: string;
+    restrictionType: string;
   }>;
 };
 
@@ -871,6 +891,37 @@ export const GetBoardsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetBoardsQuery, GetBoardsQueryVariables>;
+export const GetNgWordsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetNgWords" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "ngWords" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "value" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "restrictionType" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetNgWordsQuery, GetNgWordsQueryVariables>;
 export const GetThreadDataDocument = {
   kind: "Document",
   definitions: [

@@ -1,0 +1,8 @@
+query GetNgWords {
+  ngWords {
+    id
+    name
+    value
+    restrictionType
+  }
+}

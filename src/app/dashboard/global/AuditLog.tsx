@@ -32,7 +32,7 @@ const AuditLog = () => {
             <Table.Cell>{auditLog.id}</Table.Cell>
             <Table.Cell>{auditLog.userEmail}</Table.Cell>
             <Table.Cell>{auditLog.usedPermission}</Table.Cell>
-            <Table.Cell>{auditLog.info}</Table.Cell>
+            <Table.Cell className="text-wrap w-2/5">{auditLog.info}</Table.Cell>
             <Table.Cell>{auditLog.ipAddr}</Table.Cell>
             <Table.Cell>{auditLog.timestamp}</Table.Cell>
           </Table.Row>

@@ -63,6 +63,25 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <span className="mx-4 font-medium">Caps</span>
           </Link>
           <Link
+            href="/dashboard/ngwords"
+            className="flex items-center py-2 px-8 text-gray-400 hover:bg-gray-700"
+          >
+            <svg
+              className="h-6 w-6 text-gray-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+            <span className="mx-4 font-medium">Ng Words</span>
+          </Link>
+          <Link
             href="/dashboard/global"
             className="flex items-center py-2 px-8 text-gray-400 hover:bg-gray-700"
           >
@@ -102,7 +121,7 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div
             className={twMerge(
               " bg-gray-50 text-black z-10 flex flex-col h-screen",
-              !isNavbarOpen && "hidden",
+              !isNavbarOpen && "hidden"
             )}
           >
             <ul className="pt-2 text-lg text-blue-700 font-semibold">
@@ -120,6 +139,14 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   onClick={() => setIsNavbarOpen((x) => !x)}
                 >
                   Caps
+                </Link>
+              </li>
+              <li className="pl-2 border-b pb-1 border-slate-400 border-spacing-y-6">
+                <Link
+                  href="/dashboard/ngwords"
+                  onClick={() => setIsNavbarOpen((x) => !x)}
+                >
+                  Ng Words
                 </Link>
               </li>
               <li className="pl-2 border-slate-400">

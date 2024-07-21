@@ -41,7 +41,7 @@ type TabKeys = "threads" | "archivedThreads" | "settings";
 
 const getBoard = (
   boards: Omit<Board, "threads" | "archivedThreads">[] | undefined,
-  boardKey: string,
+  boardKey: string
 ) => {
   if (boards == null) {
     throw new Error("Boards is undefined or null");
@@ -56,10 +56,11 @@ const getBoard = (
 
 const Page = ({ params }: { params: { boardKey: string } }) => {
   const { data: boards } = useSuspenseQuery(GET_BOARDS);
+  const d = useSuspenseQuery(GET_BOARDS);
 
   const currentBoard = useMemo(
     () => getBoard(boards.boards, params.boardKey),
-    [boards, params.boardKey],
+    [boards, params.boardKey]
   );
 
   const { data: threads } = useSuspenseQuery(GET_THREADS, {
@@ -74,7 +75,7 @@ const Page = ({ params }: { params: { boardKey: string } }) => {
     (tabKey: TabKeys) => {
       setSelectedTabKey(tabKey);
     },
-    [setSelectedTabKey],
+    [setSelectedTabKey]
   );
 
   return (
