@@ -84,8 +84,15 @@ export type BoardThreadsArgs = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  addNgWord: NgWord;
   deleteAuthedToken: Scalars["Boolean"]["output"];
+  deleteNgWord: Scalars["Boolean"]["output"];
+  updateNgWord: NgWord;
   updateResponse: Res;
+};
+
+export type MutationAddNgWordArgs = {
+  ngWord: NgWordAddInput;
 };
 
 export type MutationDeleteAuthedTokenArgs = {
@@ -93,8 +100,30 @@ export type MutationDeleteAuthedTokenArgs = {
   usingOriginIp: Scalars["Boolean"]["input"];
 };
 
+export type MutationDeleteNgWordArgs = {
+  id: Scalars["Int"]["input"];
+};
+
+export type MutationUpdateNgWordArgs = {
+  ngWord: NgWord;
+};
+
 export type MutationUpdateResponseArgs = {
   res: ResInput;
+};
+
+export type NgWord = {
+  __typename?: "NgWord";
+  id: Scalars["Int"]["output"];
+  name: Scalars["String"]["output"];
+  restrictionType: Scalars["String"]["output"];
+  value: Scalars["String"]["output"];
+};
+
+export type NgWordAddInput = {
+  name: Scalars["String"]["input"];
+  restrictionType: Scalars["String"]["input"];
+  value: Scalars["String"]["input"];
 };
 
 export type Query = {
@@ -103,6 +132,7 @@ export type Query = {
   board?: Maybe<Board>;
   boards: Array<Board>;
   hello?: Maybe<Scalars["String"]["output"]>;
+  ngWords: Array<NgWord>;
 };
 
 export type QueryBoardArgs = {

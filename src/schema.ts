@@ -4,6 +4,7 @@ export const schema = /* GraphQL */ `
     boards: [Board!]!
     board(boardKey: String!): Board
     auditLogs: [AuditLog!]
+    ngWords: [NgWord!]!
   }
 
   type Board {
@@ -78,9 +79,19 @@ export const schema = /* GraphQL */ `
     timestamp: String!
   }
 
+  type NgWord {
+    id: Int!
+    name: String!
+    value: String!
+    restrictionType: String!
+  }
+
   type Mutation {
     updateResponse(res: ResInput!): Res!
     deleteAuthedToken(token: String!, usingOriginIp: Boolean!): Boolean!
+    updateNgWord(ngWord: NgWordInput!): NgWord!
+    addNgWord(ngWord: NgWordAddInput!): NgWord!
+    deleteNgWord(id: Int!): Boolean!
   }
 
   input ResInput {
@@ -91,5 +102,18 @@ export const schema = /* GraphQL */ `
     threadId: String!
     boardId: Int!
     isAbone: Boolean
+  }
+
+  input NgWordInput {
+    id: Int!
+    name: String!
+    value: String!
+    restrictionType: String!
+  }
+
+  input NgWordAddInput {
+    name: String!
+    value: String!
+    restrictionType: String!
   }
 `;

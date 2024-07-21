@@ -115,6 +115,49 @@ export interface DbAuditLog {
   timestamp: string;
 }
 
+export interface DbNgWord {
+  id: number;
+  name: string;
+  value: string;
+  restriction_type: number;
+}
+
+export type RestrictionType =
+  | "through-without-write"
+  | "error"
+  | "revoke-auth-with-error";
+
+export function convertRestrictionTypeToNumber(rt: RestrictionType): number {
+  switch (rt) {
+    case "error":
+      return 0;
+    case "through-without-write":
+      return 1;
+    case "revoke-auth-with-error":
+      return 2;
+  }
+}
+
+export function convertNumberToRestrictionType(num: number): RestrictionType {
+  switch (num) {
+    case 0:
+      return "error";
+    case 1:
+      return "through-without-write";
+    case 2:
+      return "revoke-auth-with-error";
+    default:
+      throw new Error("Invalid number");
+  }
+}
+
+export interface NgWord {
+  id: number;
+  name: string;
+  value: string;
+  restrictionType: RestrictionType;
+}
+
 export interface ArchivedRes {
   name?: string;
   mail?: string;
@@ -137,6 +180,7 @@ export type Permission =
   | `caps:${CapsPermission}:${MePermission}`
   | `roles:${RolesPermission | AllPermission}`
   | `audit-logs:${AuditLogsPermission | AllPermission}`
+  | `ng-words:${NgWordsPermission | AllPermission}`
   | AllPermission;
 
 export type BoardsPermission = "create" | "list";
@@ -170,3 +214,4 @@ export type CapsPermission =
   | "edit-password";
 export type RolesPermission = "list" | "create" | "delete" | "edit" | "show";
 export type AuditLogsPermission = "list" | "show";
+export type NgWordsPermission = "list" | "create" | "delete" | "edit";

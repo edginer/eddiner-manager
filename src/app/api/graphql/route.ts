@@ -25,7 +25,7 @@ const generator = (auth: Authentication) => {
           boards: async (_) => bbsRepo.getBoards(),
           board: async (_, args) =>
             (await bbsRepo.getBoards()).filter(
-              (b) => b.boardKey === args.boardKey,
+              (b) => b.boardKey === args.boardKey
             )[0],
           auditLogs: async (_) => {
             if (!hasPermission(auth, "audit-logs:list")) {
@@ -45,6 +45,13 @@ const generator = (auth: Authentication) => {
             } else {
               return undefined;
             }
+          },
+          ngWords: async (_) => {
+            if (!hasPermission(auth, "ng-words:list")) {
+              throw new Error("Unauthorized");
+            }
+
+            return bbsRepo.getNgWords();
           },
         },
         Board: {
@@ -79,23 +86,23 @@ const generator = (auth: Authentication) => {
             return await bbsRepo.getResponses(
               parent.boardId,
               parent.threadNumber,
-              parent.modulo,
+              parent.modulo
             );
           },
         },
         ArchivedThread: {
           responses: async (parent) => {
             const archivedThreadRepo = new ArchivedThreadRepositoryImpl(
-              bbsRepo,
+              bbsRepo
             );
             const promises = [
               archivedThreadRepo.getArchivedThreadData(
                 parent.boardId,
-                parent.threadNumber,
+                parent.threadNumber
               ),
               archivedThreadRepo.getAdminArchivedThreadData(
                 parent.boardId,
-                parent.threadNumber,
+                parent.threadNumber
               ),
             ];
             const [archivedRes, adminArchivedRes] = await Promise.all(promises);
@@ -183,6 +190,72 @@ const generator = (auth: Authentication) => {
               user_email: auth.userEmail,
               used_permission: perm,
               info: `{"authedToken": "${token}"}`,
+              ip_addr: auth.ipAddr,
+            });
+
+            return true;
+          },
+          updateNgWord: async (_, args) => {
+            const { ngWord } = args;
+            const { id, name, value, restrictionType } = ngWord;
+
+            if (!hasPermission(auth, "ng-words:edit")) {
+              throw new Error("Unauthorized");
+            }
+
+            await bbsRepo.updateNgWord({
+              id,
+              name,
+              value,
+              restrictionType,
+            });
+
+            await addAuditLog({
+              user_email: auth.userEmail,
+              used_permission: "ng-words:edit",
+              info: JSON.stringify(ngWord),
+              ip_addr: auth.ipAddr,
+            });
+
+            return ngWord;
+          },
+          addNgWord: async (_, args) => {
+            const { ngWord } = args;
+            const { name, value, restrictionType } = ngWord;
+
+            if (!hasPermission(auth, "ng-words:create")) {
+              throw new Error("Unauthorized");
+            }
+
+            await bbsRepo.addNgWord({
+              name,
+              value,
+              restrictionType,
+            });
+
+            await addAuditLog({
+              user_email: auth.userEmail,
+              used_permission: "ng-words:create",
+              info: JSON.stringify(ngWord),
+              ip_addr: auth.ipAddr,
+            });
+
+            const ngWords = await bbsRepo.getNgWords();
+            return ngWords[ngWords.length - 1];
+          },
+          deleteNgWord: async (_, args) => {
+            const { id } = args;
+
+            if (!hasPermission(auth, "ng-words:delete")) {
+              throw new Error("Unauthorized");
+            }
+
+            await bbsRepo.deleteNgWord(id);
+
+            await addAuditLog({
+              user_email: auth.userEmail,
+              used_permission: "ng-words:delete",
+              info: `{"id": ${id}}`,
               ip_addr: auth.ipAddr,
             });
 

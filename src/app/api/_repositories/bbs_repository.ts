@@ -1,10 +1,14 @@
 import {
   ArchivedThread,
   Board,
+  convertNumberToRestrictionType,
+  convertRestrictionTypeToNumber,
   DbArchivedThread,
   DbBoard,
+  DbNgWord,
   DbRes,
   DbThread,
+  NgWord,
   Res,
   Thread,
 } from "@/interfaces";
@@ -17,28 +21,32 @@ export interface BbsRepository {
   getThread(boardId: number, threadId: string): Promise<Thread | undefined>;
   getArchivedThreads(
     boardId: number,
-    options: { page?: number; query?: string },
+    options: { page?: number; query?: string }
   ): Promise<ArchivedThread[]>;
   getResponses(
     boardId: number,
     threadId: string,
-    modulo: number,
+    modulo: number
   ): Promise<Res[]>;
   getResponse(responseId: number, modulo: number): Promise<Res | undefined>;
   updateResponse(
     response: Omit<
       Partial<Res> & { id: number; modulo: number },
       "boardId" | "threadId" | "date" | "ipAddr" | "authedToken" | "timestamp"
-    >,
+    >
   ): Promise<void>;
   headArchivedThread(
     boardId: number,
-    threadId: string,
+    threadId: string
   ): Promise<ArchivedThread>;
   deleteAuthedToken(
     token: string,
-    appliedToAssociatedOriginIp: boolean,
+    appliedToAssociatedOriginIp: boolean
   ): Promise<void>;
+  getNgWords(): Promise<NgWord[]>;
+  addNgWord(word: Omit<NgWord, "id">): Promise<void>;
+  updateNgWord(word: NgWord): Promise<void>;
+  deleteNgWord(id: number): Promise<void>;
 }
 
 export class BbsRepositoryImpl implements BbsRepository {
@@ -104,7 +112,7 @@ export class BbsRepositoryImpl implements BbsRepository {
 
   async getThread(
     boardId: number,
-    threadId: string,
+    threadId: string
   ): Promise<Thread | undefined> {
     const thread = await this.threadsDb
       .prepare("SELECT * FROM threads WHERE board_id = ? AND thread_number = ?")
@@ -131,11 +139,11 @@ export class BbsRepositoryImpl implements BbsRepository {
   async getResponses(
     boardId: number,
     threadId: string,
-    modulo: number,
+    modulo: number
   ): Promise<Res[]> {
     const { results } = await this.responsesDbs[modulo]
       .prepare(
-        "SELECT * FROM responses WHERE board_id = ? AND thread_id = ? ORDER BY id ASC",
+        "SELECT * FROM responses WHERE board_id = ? AND thread_id = ? ORDER BY id ASC"
       )
       .bind(boardId, threadId)
       .all();
@@ -185,7 +193,7 @@ export class BbsRepositoryImpl implements BbsRepository {
     res: Omit<
       Partial<Res> & { id: number; modulo: number },
       "boardId" | "threadId" | "date" | "ipAddr" | "authedToken" | "timestamp"
-    >,
+    >
   ) {
     const { id, authorId, name, mail, body, isAbone } = res;
     const columnNames = [];
@@ -225,7 +233,7 @@ export class BbsRepositoryImpl implements BbsRepository {
 
   async getArchivedThreads(
     boardId: number,
-    options: { page?: number; query?: string },
+    options: { page?: number; query?: string }
   ): Promise<ArchivedThread[]> {
     const { page, query } = options;
     const parsedPage = page ?? NaN;
@@ -233,7 +241,7 @@ export class BbsRepositoryImpl implements BbsRepository {
     if (query) {
       const { results } = await this.infosDb
         .prepare(
-          "SELECT * FROM archives WHERE board_id = ? AND title LIKE ? LIMIT 25 OFFSET ?",
+          "SELECT * FROM archives WHERE board_id = ? AND title LIKE ? LIMIT 25 OFFSET ?"
         )
         .bind(boardId, `%${query}%`, isNaN(parsedPage) ? 0 : parsedPage * 25)
         .all();
@@ -267,11 +275,11 @@ export class BbsRepositoryImpl implements BbsRepository {
 
   async headArchivedThread(
     boardId: number,
-    threadId: string,
+    threadId: string
   ): Promise<ArchivedThread> {
     const thread = (await this.infosDb
       .prepare(
-        "SELECT * FROM archives WHERE board_id = ? AND thread_number = ?",
+        "SELECT * FROM archives WHERE board_id = ? AND thread_number = ?"
       )
       .bind(boardId, threadId)
       .first()) as unknown as DbArchivedThread;
@@ -287,21 +295,70 @@ export class BbsRepositoryImpl implements BbsRepository {
 
   async deleteAuthedToken(
     token: string,
-    appliedToAssociatedOriginIp: boolean,
+    appliedToAssociatedOriginIp: boolean
   ): Promise<void> {
     if (appliedToAssociatedOriginIp) {
       await process.env.DB.prepare(
         `UPDATE authed_cookies SET authed = 0 WHERE origin_ip 
-          IN (SELECT origin_ip FROM authed_cookies WHERE cookie = ?)`,
+          IN (SELECT origin_ip FROM authed_cookies WHERE cookie = ?)`
       )
         .bind(token)
         .run();
     } else {
       await process.env.DB.prepare(
-        "UPDATE authed_cookies SET authed = 0 WHERE cookie = ?",
+        "UPDATE authed_cookies SET authed = 0 WHERE cookie = ?"
       )
         .bind(token)
         .run();
     }
+  }
+
+  async getNgWords(): Promise<NgWord[]> {
+    const { results } = await this.infosDb
+      .prepare("SELECT * FROM ng_words")
+      .all();
+
+    const dbNgWords = results as unknown[] as DbNgWord[];
+
+    return dbNgWords.map((w) => ({
+      id: w.id,
+      name: w.name,
+      value: w.value,
+      restrictionType: convertNumberToRestrictionType(w.restriction_type),
+    }));
+  }
+
+  async addNgWord(word: NgWord): Promise<void> {
+    await this.infosDb
+      .prepare(
+        "INSERT INTO ng_words (name, value, restriction_type) VALUES (?, ?, ?)"
+      )
+      .bind(
+        word.name,
+        word.value,
+        convertRestrictionTypeToNumber(word.restrictionType)
+      )
+      .run();
+  }
+
+  async updateNgWord(word: NgWord): Promise<void> {
+    await this.infosDb
+      .prepare(
+        "UPDATE ng_words SET name = ?, value = ?, restriction_type = ? WHERE id = ?"
+      )
+      .bind(
+        word.name,
+        word.value,
+        convertRestrictionTypeToNumber(word.restrictionType),
+        word.id
+      )
+      .run();
+  }
+
+  async deleteNgWord(id: number): Promise<void> {
+    await this.infosDb
+      .prepare("DELETE FROM ng_words WHERE id = ?")
+      .bind(id)
+      .run();
   }
 }

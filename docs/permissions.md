@@ -48,6 +48,11 @@
 - audit-logs
   - list
   - show
+- ng-words
+  - list
+  - create
+  - delete
+  - edit
 
 ## Default Roles
 
