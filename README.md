@@ -5,10 +5,6 @@
 - Install wrangler
 - Setup [eddiner](https://github.com/edginer/eddiner)
 
-## Deploy (first)
-- Run `npm ci`
-- Run `npm run pages:deploy`
-
 ## Setup Auth0 and environment variables
 - Create Auth0 Account
 - Create Auth0 Application with Single Page Application
@@ -20,10 +16,11 @@
     - Application -> Client ID as `AUTH0_CLIENT_ID` (should be secret)
     - Application -> Client Secret as `AUTH0_CLIENT_SECRET` (should be secret)
     - Application -> Domain as `AUTH0_DOMAIN`
-- Set environment variables
-  - `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_DOMAIN`
+- Set environment variables and settings into wrangler.toml
+  - Rename wrangler.toml.sample to wrangler.toml
+  - Set `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_DOMAIN` as `[vars]`
     - using values from Auth0
-  - `AUTH_SECRET`
+  - Set `AUTH_SECRET` as `[vars]`
     - generate from your command line using `openssl rand -base64 32` and use it
     - should be secret
 - Set your eddiner D1 database and R2 bucket
@@ -33,13 +30,35 @@
       - `DB_THREADS`
       - `DB` (for info DB containing such as caps, boards)
     - you need to create `ADMIN_DB` for account and session management
-  - run up migration using this `upSQLStatements` via Cloudflare dashboard
+  - run up migration using this `upSQLStatements` via Cloudflare dashboard of D1
   - R2
     - you need to connect archived dat buckets via `ARCHIVE_BUCKET`
+  - Finally, you can get database_name and database_id for D1 databases and bucket_name for R2 bucket
+    - Add D1 bindings
+      ```
+      [[d1_databases]]
+      binding = "DB_RESPONSES_3"
+      database_name = "<your database name>"
+      database_id = "<your database id>"
+      ```
+    - Append migration dir only for `ADMIN_DB`
+      ```
+      migrations_dir = "admin-migrations"
+      ```
+    - Add R2 binding
+      ```
+      [[r2_buckets]]
+      binding = 'ARCHIVE_BUCKET'
+      bucket_name = '<your bucket name>'
+      ```
+  - Run migration for `ADMIN_DB`
+    ```
+    pnpm dlx wrangler d1 migrations apply <your ADMIN_DB name>
+    ```
   
-## Redeploy application
-- You need to redeploy application to reflect updated environment variables
-  - Run `npm run pages:deploy`
+## Deploy application
+- Run `pnpm i`
+- Run `pnpm pages:deploy`
 
 
 ## License
