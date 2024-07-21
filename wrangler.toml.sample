@@ -1,0 +1,45 @@
+compatibility_date = "2024-06-03"
+pages_build_output_dir = "./.vercel/output/static"
+name = "eddi-manager"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"                                       # i.e. available in your Worker on env.DB
+database_name = "<your D1 database name>"
+database_id  = "<your D1 database id>"
+
+[[d1_databases]]
+binding = "DB_THREADS"                               # i.e. available in your Worker on env.DB
+database_name = "<your D1 database name>"
+database_id  = "<your D1 database id>"
+
+[[d1_databases]]
+binding = "DB_RESPONSES"                             # i.e. available in your Worker on env.DB
+database_name = "<your D1 database name>"
+database_id  = "<your D1 database id>"
+
+[[d1_databases]]
+binding = "DB_RESPONSES_2"                           # i.e. available in your Worker on env.DB
+database_name = "<your D1 database name>"
+database_id  = "<your D1 database id>"
+
+[[d1_databases]]
+binding = "DB_RESPONSES_3"                           # i.e. available in your Worker on env.DB
+database_name = "<your D1 database name>"
+database_id  = "<your D1 database id>"
+
+[[d1_databases]]
+binding = "ADMIN_DB"                                 # i.e. available in your Worker on env.DB
+database_name = "<your D1 database name>"
+database_id  = "<your D1 database id>"
+migrations_dir = "admin-migrations"
+
+[[r2_buckets]]
+binding = 'ARCHIVE_BUCKET'
+bucket_name = 'edge-archive-bucket'
+
+[vars]
+AUTH_SECRET = "<your auth0 secret>"
+AUTH0_CLIENT_ID = "<your auth0 client id>"
+AUTH0_CLIENT_SECRET = "<your auth0 client secret>"
+AUTH0_DOMAIN = "<your auth0 domain>"
